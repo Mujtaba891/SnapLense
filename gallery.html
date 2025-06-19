@@ -22,13 +22,26 @@
 
             <!-- Media Viewer Overlay -->
             <div id="media-viewer-overlay" class="media-viewer-overlay">
-                <div class="media-viewer-content">
+              <button class="close-button" id="close-viewer-button"><i class="fas fa-times"></i></button>
+                <div class="media-viewer-content" id="media-viewer-content">
+                  <p class="caption" id="viewer-caption"></p>
                     <img id="viewer-image" src="" alt="Viewed Media" style="display: none;">
-                    <video id="viewer-video" src="" controls style="display: none;"></video>
-                    <p class="caption" id="viewer-caption"></p>
+                    <video id="viewer-video" src="" style="display: none;"></video> <!-- Removed 'controls' attribute -->
+                    
+
+                    <!-- Custom Video Controls -->
+                    <div id="video-controls-container" class="video-controls-container">
+                        <div class="video-controls">
+                            <button id="play-pause-button"><i class="fas fa-play"></i></button>
+                            <div class="progress-bar-wrapper" id="progress-bar-wrapper">
+                                <div class="progress-bar" id="progress-bar"></div>
+                            </div>
+                            <span id="time-display">0:00 / 0:00</span>
+                            <button id="volume-button"><i class="fas fa-volume-up"></i></button>
+                            <button id="fullscreen-button"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
                 </div>
-                
-                <button class="close-button" id="close-viewer-button"><i class="fas fa-times"></i></button>
                 
                 <button class="nav-arrow left" id="prev-media-button"><i class="fas fa-chevron-left"></i></button>
                 <button class="nav-arrow right" id="next-media-button"><i class="fas fa-chevron-right"></i></button>
@@ -51,7 +64,7 @@
         </footer>
     </div>
     <script src="js/db.js"></script>
-    <script src="js/filters.js"></script> <!-- IMPORTANT: Load filters.js before gallery.js -->
+    <script src="js/filters.js"></script>
     <script src="js/gallery.js"></script>
 </body>
 </html>

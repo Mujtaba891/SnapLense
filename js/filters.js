@@ -46,10 +46,9 @@ const FilterManager = (() => {
      * @param {HTMLVideoElement} video - The source video element.
      * @param {HTMLCanvasElement} canvas - The canvas element.
      * @param {number} frameCount - A counter for animation-based filters.
-     * @param {number} currentZoom - The current zoom level.
      * @param {string} facingMode - 'user' or 'environment'.
      */
-    const applyActiveFilter = (ctx, video, canvas, frameCount, currentZoom, facingMode) => {
+    const applyActiveFilter = (ctx, video, canvas, frameCount, facingMode) => { // currentZoom removed
         const filter = getActiveFilter();
         if (!filter) {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -61,29 +60,21 @@ const FilterManager = (() => {
         // Save context state for transformations
         ctx.save();
 
-        // Apply mirroring for user-facing camera
+        // Apply mirroring for user-facing camera (pixel manipulation)
         if (facingMode === 'user') {
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
         }
 
-        // Apply digital zoom
-        const zoomedWidth = canvas.width / currentZoom;
-        const zoomedHeight = canvas.height / currentZoom;
-        const offsetX = (canvas.width - zoomedWidth) / 2;
-        const offsetY = (canvas.height - zoomedHeight) / 2;
-
-        // Draw the video frame to the canvas (potentially off-screen before filter application)
-        ctx.drawImage(video, offsetX, offsetY, zoomedWidth, zoomedHeight, 0, 0, canvas.width, canvas.height);
+        // Draw the video frame to the canvas (now without zoom adjustments here)
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height); // Removed zoom offsetX/Y and scaledWidth/Height
 
         // Restore context before applying pixel-based filters so they work on the drawn image
         ctx.restore(); 
 
         if (filter.type === 'css') {
-            // For CSS filters, we don't manipulate pixels. We let CSS handle it on the canvas element itself.
-            // This applyFunc is actually a CSS class name. The main camera.js will apply this class.
-            // This function here just draws the image.
-            // The actual CSS filter application is outside this filter manager's direct drawing.
+            // For CSS filters, the CSS class is applied directly to the canvas element in camera.js.
+            // This function just ensures the image is drawn.
         } else if (filter.type === 'canvas' && typeof filter.applyFunc === 'function') {
             // Get image data for pixel manipulation
             let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -98,10 +89,10 @@ const FilterManager = (() => {
     };
 
     // --- Filter Definitions ---
+    // (These remain the same, just clarifying that the filters.js file
+    // itself doesn't need to change for `currentZoom` as it's passed from camera.js)
 
     // 1. CSS Filters (these will apply a class to the canvas element in camera.js)
-    // We register them here, but their application is handled by setting the canvas's className.
-    // The `applyActiveFilter` above just draws the image for them.
     registerFilter('none', 'None', 'css', 'filter-css-none');
     registerFilter('grayscale', 'Grayscale', 'css', 'filter-css-grayscale');
     registerFilter('sepia', 'Sepia', 'css', 'filter-css-sepia');
@@ -131,13 +122,7 @@ const FilterManager = (() => {
     registerFilter('duotone', 'Duotone', 'css', 'filter-css-duotone');
 
 
-    // 2. Canvas Filters (Pixel Manipulation)
-    // These functions receive the pixel data and modify it directly.
-    // data: Uint8ClampedArray (RGBA)
-    // w, h: width, height of the image/canvas
-    // frameCount: for animation/time-based effects
-
-    // Glitch Filter
+    // 2. Canvas Filters (Pixel Manipulation) - These are unchanged.
     registerFilter('glitch', 'Glitch', 'canvas', (data, w, h, frameCount) => {
         const severity = 2 + Math.sin(frameCount * 0.1) * 2; // Vary glitch intensity
         const blockHeight = 10;
@@ -162,15 +147,14 @@ const FilterManager = (() => {
                         const srcIdx = (srcY * w + srcX) * 4;
                         const destIdx = (destY * w + destX) * 4;
 
-                        // Swap red and blue channels for a classic glitch look
                         let r = data[srcIdx];
                         let g = data[srcIdx + 1];
                         let b = data[srcIdx + 2];
                         let a = data[srcIdx + 3];
 
-                        data[destIdx] = b; // R becomes B
+                        data[destIdx] = b; 
                         data[destIdx + 1] = g;
-                        data[destIdx + 2] = r; // B becomes R
+                        data[destIdx + 2] = r; 
                         data[destIdx + 3] = a;
                     }
                 }
@@ -178,14 +162,11 @@ const FilterManager = (() => {
         }
     });
 
-    // Rumble / Wave Distortion Filter
     registerFilter('rumble', 'Rumble', 'canvas', (data, w, h, frameCount) => {
-        const strength = 10; // Max pixel displacement
-        const frequency = 0.05; // How many waves
-        const amplitude = 0.02; // How much displacement
+        let originalData = new Uint8ClampedArray(data);
+        const strength = 10;
+        const frequency = 0.05;
         const time = frameCount * 0.05;
-
-        let originalData = new Uint8ClampedArray(data); // Keep original frame data
 
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
@@ -204,7 +185,6 @@ const FilterManager = (() => {
                     data[srcIdx + 2] = originalData[newIdx + 2];
                     data[srcIdx + 3] = originalData[newIdx + 3];
                 } else {
-                    // Fill with black or transparent if pixel goes out of bounds
                     data[srcIdx] = data[srcIdx + 1] = data[srcIdx + 2] = 0;
                     data[srcIdx + 3] = 255;
                 }
@@ -212,13 +192,12 @@ const FilterManager = (() => {
         }
     });
 
-    // Squeeze / Radial Distortion Filter
     registerFilter('squeeze', 'Squeeze', 'canvas', (data, w, h) => {
         let originalData = new Uint8ClampedArray(data);
         const centerX = w / 2;
         const centerY = h / 2;
         const radius = Math.min(w, h) / 2;
-        const strength = 0.5; // How much to squeeze (0-1)
+        const strength = 0.5;
 
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
@@ -230,8 +209,8 @@ const FilterManager = (() => {
 
                 if (dist < radius) {
                     const angle = Math.atan2(dy, dx);
-                    const percent = dist / radius; // 0 at center, 1 at edge
-                    const newDist = dist * (1 - strength * (1 - percent)); // Squeeze more towards center
+                    const percent = dist / radius;
+                    const newDist = dist * (1 - strength * (1 - percent));
 
                     const newX = Math.floor(centerX + newDist * Math.cos(angle));
                     const newY = Math.floor(centerY + newDist * Math.sin(angle));
@@ -251,45 +230,39 @@ const FilterManager = (() => {
         }
     });
 
-    // Rain Particle Filter (Overlays animated particles)
-    // This one needs access to ctx to draw on top.
     registerFilter('rain', 'Rain', 'canvas', (data, w, h, frameCount, ctx) => {
-        // Pixel manipulation for image (e.g., subtle blue tint)
         for (let i = 0; i < data.length; i += 4) {
-            data[i] = Math.max(0, data[i] - 20); // Reduce Red
-            data[i + 1] = Math.max(0, data[i + 1] - 10); // Reduce Green
-            data[i + 2] = Math.min(255, data[i + 2] + 30); // Increase Blue
+            data[i] = Math.max(0, data[i] - 20);
+            data[i + 1] = Math.max(0, data[i + 1] - 10);
+            data[i + 2] = Math.min(255, data[i + 2] + 30);
         }
 
-        // Draw rain particles on top (on the same canvas context)
         const numDrops = 100;
         const dropSpeed = 10;
         const dropLength = 20;
         
-        ctx.fillStyle = 'rgba(200, 200, 255, 0.7)'; // Light blue transparent drops
+        ctx.fillStyle = 'rgba(200, 200, 255, 0.7)';
         for (let i = 0; i < numDrops; i++) {
             const x = (i * 13 + frameCount * dropSpeed) % (w + dropLength) - dropLength;
             const y = (i * 29 + frameCount * dropSpeed) % (h + dropLength) - dropLength;
             
-            ctx.fillRect(x, y, 2, dropLength); // Draw vertical line for drop
+            ctx.fillRect(x, y, 2, dropLength);
         }
     });
 
-    // Snow Particle Filter
     registerFilter('snow', 'Snow', 'canvas', (data, w, h, frameCount, ctx) => {
-        // Slight desaturation/cold tint
         for (let i = 0; i < data.length; i += 4) {
             const avg = (data[i] + data[i+1] + data[i+2]) / 3;
             data[i] = avg;
             data[i+1] = avg;
-            data[i+2] = avg + 20; // Add blue
+            data[i+2] = avg + 20;
         }
 
         const numSnowflakes = 200;
         const snowflakeSpeed = 2;
         const snowflakeSize = 3;
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; // White transparent snowflakes
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         for (let i = 0; i < numSnowflakes; i++) {
             const x = (i * 31 + frameCount * snowflakeSpeed * 0.5 + Math.sin(i * 0.1 + frameCount * 0.05) * 20) % (w + snowflakeSize) - snowflakeSize;
             const y = (i * 17 + frameCount * snowflakeSpeed) % (h + snowflakeSize) - snowflakeSize;
@@ -298,29 +271,26 @@ const FilterManager = (() => {
             ctx.arc(x, y, snowflakeSize, 0, Math.PI * 2);
             ctx.fill();
         }
+        ctx.globalAlpha = 1.0;
     });
 
-    // Sun Glare/Bloom Filter (Simulated)
     registerFilter('sun', 'Sun Glare', 'canvas', (data, w, h, frameCount, ctx) => {
-        // Increase overall brightness/warmth
         for (let i = 0; i < data.length; i += 4) {
-            data[i] = Math.min(255, data[i] + 40); // Red
-            data[i + 1] = Math.min(255, data[i + 1] + 20); // Green
-            data[i + 2] = Math.max(0, data[i + 2] - 10); // Blue
+            data[i] = Math.min(255, data[i] + 40);
+            data[i + 1] = Math.min(255, data[i + 1] + 20);
+            data[i + 2] = Math.max(0, data[i + 2] - 10);
         }
 
-        // Draw a yellowish-orange radial gradient for glare
         const centerX = w * 0.8;
         const centerY = h * 0.2;
         const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.min(w, h) * 0.6);
-        gradient.addColorStop(0, 'rgba(255, 200, 0, 0.5)'); // Bright yellow center
-        gradient.addColorStop(0.5, 'rgba(255, 165, 0, 0.3)'); // Orange middle
-        gradient.addColorStop(1, 'rgba(255, 255, 0, 0)'); // Fully transparent outer
+        gradient.addColorStop(0, 'rgba(255, 200, 0, 0.5)');
+        gradient.addColorStop(0.5, 'rgba(255, 165, 0, 0.3)');
+        gradient.addColorStop(1, 'rgba(255, 255, 0, 0)');
 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
 
-        // Add some lens flare like dots
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.beginPath();
         ctx.arc(centerX - 100, centerY + 80, 15, 0, Math.PI * 2);
@@ -328,16 +298,13 @@ const FilterManager = (() => {
         ctx.fill();
     });
 
-    // Moon Glow Filter (Night effect + lunar glow)
     registerFilter('moon', 'Moon Glow', 'canvas', (data, w, h, frameCount, ctx) => {
-        // Convert to night mode (darken and add blue tint)
         for (let i = 0; i < data.length; i += 4) {
-            data[i] = Math.max(0, data[i] * 0.5 - 20); // Darken red
-            data[i + 1] = Math.max(0, data[i + 1] * 0.6 - 10); // Darken green
-            data[i + 2] = Math.min(255, data[i + 2] * 0.8 + 30); // Add blue and darken
+            data[i] = Math.max(0, data[i] * 0.5 - 20);
+            data[i + 1] = Math.max(0, data[i + 1] * 0.6 - 10);
+            data[i + 2] = Math.min(255, data[i + 2] * 0.8 + 30);
         }
 
-        // Draw a soft white-blue moon at top-left
         const centerX = w * 0.2;
         const centerY = h * 0.2;
         const radius = Math.min(w, h) * 0.15;
@@ -352,13 +319,11 @@ const FilterManager = (() => {
         ctx.fill();
     });
 
-    // Stars Particle Filter (Static/flickering stars)
     registerFilter('stars', 'Stars', 'canvas', (data, w, h, frameCount, ctx) => {
-        // Darken for night effect
         for (let i = 0; i < data.length; i += 4) {
             data[i] = data[i] * 0.4;
             data[i + 1] = data[i + 1] * 0.4;
-            data[i + 2] = data[i + 2] * 0.6; // Slight blue tint
+            data[i + 2] = data[i + 2] * 0.6;
         }
 
         const numStars = 300;
@@ -366,28 +331,26 @@ const FilterManager = (() => {
         for (let i = 0; i < numStars; i++) {
             const x = Math.random() * w;
             const y = Math.random() * h;
-            const size = Math.random() * 2 + 0.5; // Random size
-            const twinkle = Math.sin(frameCount * 0.1 + i) * 0.3 + 0.7; // Simple twinkle effect
+            const size = Math.random() * 2 + 0.5;
+            const twinkle = Math.sin(frameCount * 0.1 + i) * 0.3 + 0.7;
             ctx.globalAlpha = twinkle;
             ctx.beginPath();
             ctx.arc(x, y, size, 0, Math.PI * 2);
             ctx.fill();
         }
-        ctx.globalAlpha = 1.0; // Reset alpha
+        ctx.globalAlpha = 1.0;
     });
 
-    // Water Ripple Filter (Distortion + subtle color change)
     registerFilter('water', 'Water Ripple', 'canvas', (data, w, h, frameCount) => {
         let originalData = new Uint8ClampedArray(data);
-        const rippleStrength = 5; // How much pixels are displaced
-        const rippleFrequency = 0.03; // How dense the ripples are
+        const rippleStrength = 5;
+        const rippleFrequency = 0.03;
         const time = frameCount * 0.05;
 
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
                 const srcIdx = (y * w + x) * 4;
 
-                // Calculate ripple displacement
                 const dx = rippleStrength * Math.sin(x * rippleFrequency + time);
                 const dy = rippleStrength * Math.cos(y * rippleFrequency + time);
 
@@ -406,7 +369,6 @@ const FilterManager = (() => {
                 }
             }
         }
-        // Add subtle blue/green tint for water feel
         for (let i = 0; i < data.length; i += 4) {
             data[i] = Math.max(0, data[i] - 10);
             data[i + 1] = Math.min(255, data[i + 1] + 10);
@@ -414,10 +376,7 @@ const FilterManager = (() => {
         }
     });
 
-    // Rainbow Overlay Filter
     registerFilter('rainbow', 'Rainbow', 'canvas', (data, w, h, frameCount, ctx) => {
-        // Preserve original image color, just draw over
-        // Draw a horizontal rainbow gradient that slowly shifts
         const gradientHeight = h / 2;
         const gradient = ctx.createLinearGradient(0, h/2 - gradientHeight/2, w, h/2 + gradientHeight/2);
         
@@ -427,18 +386,17 @@ const FilterManager = (() => {
         });
 
         ctx.fillStyle = gradient;
-        ctx.globalAlpha = 0.3; // Make it semi-transparent
+        ctx.globalAlpha = 0.3;
         ctx.fillRect(0, 0, w, h);
-        ctx.globalAlpha = 1.0; // Reset alpha
+        ctx.globalAlpha = 1.0;
     });
 
-    // Disaster: Cyclone (Swirling distortion + dark tint)
     registerFilter('cyclone', 'Cyclone', 'canvas', (data, w, h, frameCount) => {
         let originalData = new Uint8ClampedArray(data);
         const centerX = w / 2;
         const centerY = h / 2;
         const time = frameCount * 0.05;
-        const strength = 0.05; // How much to twist
+        const strength = 0.05;
 
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
@@ -449,7 +407,6 @@ const FilterManager = (() => {
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 let angle = Math.atan2(dy, dx);
 
-                // Add a twisting effect based on distance and time
                 const twist = dist * strength + time;
                 angle += twist;
 
@@ -468,7 +425,6 @@ const FilterManager = (() => {
                 }
             }
         }
-        // Darken and desaturate
         for (let i = 0; i < data.length; i += 4) {
             const avg = (data[i] + data[i+1] + data[i+2]) / 3;
             data[i] = avg * 0.8;
@@ -477,76 +433,67 @@ const FilterManager = (() => {
         }
     });
 
-    // Disaster: Drought (Desaturation + crackle effect overlay)
     registerFilter('drought', 'Drought', 'canvas', (data, w, h, frameCount, ctx) => {
-        // Desaturate and add a reddish-brown tint
         for (let i = 0; i < data.length; i += 4) {
             const r = data[i], g = data[i+1], b = data[i+2];
             const avg = (r + g + b) / 3;
-            data[i] = avg * 0.8 + 50; // More red
-            data[i+1] = avg * 0.8 + 20; // More green
-            data[i+2] = avg * 0.8;    // Less blue
+            data[i] = avg * 0.8 + 50;
+            data[i+1] = avg * 0.8 + 20;
+            data[i+2] = avg * 0.8;
         }
 
-        // Simulate cracked earth texture overlay (simple lines)
-        ctx.strokeStyle = 'rgba(100, 50, 0, 0.4)'; // Dark brown
+        ctx.strokeStyle = 'rgba(100, 50, 0, 0.4)';
         ctx.lineWidth = 1;
         const lineDensity = 0.05;
         for (let y = 0; y < h; y += h * lineDensity) {
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.lineTo(w, y + Math.sin(y * 0.1 + frameCount * 0.02) * 10); // Wavy horizontal lines
+            ctx.lineTo(w, y + Math.sin(y * 0.1 + frameCount * 0.02) * 10);
             ctx.stroke();
         }
         for (let x = 0; x < w; x += w * lineDensity) {
             ctx.beginPath();
-            ctx.moveTo(x + Math.cos(x * 0.1 + frameCount * 0.03) * 10, 0); // Wavy vertical lines
+            ctx.moveTo(x + Math.cos(x * 0.1 + frameCount * 0.03) * 10, 0);
             ctx.lineTo(x, h);
             ctx.stroke();
         }
     });
 
-    // "Squish" Filter - Vertical compression
     registerFilter('squish', 'Squish', 'canvas', (data, w, h, frameCount) => {
         let originalData = new Uint8ClampedArray(data);
-        const compressionFactor = 0.7; // 70% compressed vertically
+        const compressionFactor = 0.7;
 
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
                 const srcIdx = (y * w + x) * 4;
 
-                // Map current y to a new y in the original image
                 const originalY = Math.floor(y / compressionFactor);
                 
-                if (originalY < h) { // Ensure within bounds
+                if (originalY < h) {
                     const originalIdx = (originalY * w + x) * 4;
                     data[srcIdx] = originalData[originalIdx];
                     data[srcIdx + 1] = originalData[originalIdx + 1];
                     data[srcIdx + 2] = originalData[originalIdx + 2];
                     data[srcIdx + 3] = originalData[originalIdx + 3];
                 } else {
-                    // Fill empty space, e.g., with transparent or black
                     data[srcIdx] = data[srcIdx + 1] = data[srcIdx + 2] = 0;
-                    data[srcIdx + 3] = 0; // Transparent
+                    data[srcIdx + 3] = 0;
                 }
             }
         }
     });
 
-    // "Pixelate" Filter - Reduces resolution
     registerFilter('pixelate', 'Pixelate', 'canvas', (data, w, h) => {
-        const pixelSize = 10; // Size of each pixel block
+        const pixelSize = 10;
 
         for (let y = 0; y < h; y += pixelSize) {
             for (let x = 0; x < w; x += pixelSize) {
-                // Get the color of the top-left pixel in the current block
                 const originalIdx = (y * w + x) * 4;
                 const r = data[originalIdx];
                 const g = data[originalIdx + 1];
                 const b = data[originalIdx + 2];
                 const a = data[originalIdx + 3];
 
-                // Fill the entire block with this color
                 for (let dy = 0; dy < pixelSize; dy++) {
                     if (y + dy >= h) break;
                     for (let dx = 0; dx < pixelSize; dx++) {
@@ -563,13 +510,11 @@ const FilterManager = (() => {
         }
     });
 
-    // "Negative" Filter - Inverts colors
     registerFilter('negative', 'Negative', 'canvas', (data, w, h) => {
         for (let i = 0; i < data.length; i += 4) {
-            data[i] = 255 - data[i];     // Red
-            data[i + 1] = 255 - data[i + 1]; // Green
-            data[i + 2] = 255 - data[i + 2]; // Blue
-            // Alpha remains unchanged
+            data[i] = 255 - data[i];
+            data[i + 1] = 255 - data[i + 1];
+            data[i + 2] = 255 - data[i + 2];
         }
     });
 

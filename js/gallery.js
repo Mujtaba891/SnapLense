@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const galleryGrid = document.getElementById('gallery-grid');
     const mediaViewerOverlay = document.getElementById('media-viewer-overlay');
+    const mediaViewerContent = document.getElementById('media-viewer-content');
     const viewerImage = document.getElementById('viewer-image');
     const viewerVideo = document.getElementById('viewer-video');
     const viewerCaption = document.getElementById('viewer-caption');
@@ -19,26 +20,161 @@ document.addEventListener('DOMContentLoaded', () => {
     const shareButton = document.getElementById('share-button');
     const deleteButton = document.getElementById('delete-button');
 
-    let userMedia = []; // Stores all media for current user
-    let currentMediaIndex = -1; // Index of the currently viewed media
+    // Custom Video Controls Elements
+    const videoControlsContainer = document.getElementById('video-controls-container');
+    const playPauseButton = document.getElementById('play-pause-button');
+    const progressBarWrapper = document.getElementById('progress-bar-wrapper');
+    const progressBar = document.getElementById('progress-bar');
+    const timeDisplay = document.getElementById('time-display');
+    const volumeButton = document.getElementById('volume-button');
+    const fullscreenButton = document.getElementById('fullscreen-button');
+
+    let userMedia = [];
+    let currentMediaIndex = -1;
+
+    // Helper function to format time
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
+
+    // --- Video Controls Logic ---
+
+    function setupVideoControls() {
+        playPauseButton.addEventListener('click', togglePlayPause);
+        viewerVideo.addEventListener('play', updatePlayPauseButton);
+        viewerVideo.addEventListener('pause', updatePlayPauseButton);
+        viewerVideo.addEventListener('ended', resetVideoState);
+        viewerVideo.addEventListener('timeupdate', updateProgressBar);
+        viewerVideo.addEventListener('loadedmetadata', updateProgressBar);
+
+        progressBarWrapper.addEventListener('click', seekVideo);
+
+        volumeButton.addEventListener('click', toggleMute);
+        fullscreenButton.addEventListener('click', toggleFullscreen);
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange); // For Safari
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);   // For Firefox
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);    // For IE/Edge
+    }
+
+    function removeVideoControlsListeners() {
+        playPauseButton.removeEventListener('click', togglePlayPause);
+        viewerVideo.removeEventListener('play', updatePlayPauseButton);
+        viewerVideo.removeEventListener('pause', updatePlayPauseButton);
+        viewerVideo.removeEventListener('ended', resetVideoState);
+        viewerVideo.removeEventListener('timeupdate', updateProgressBar);
+        viewerVideo.removeEventListener('loadedmetadata', updateProgressBar);
+
+        progressBarWrapper.removeEventListener('click', seekVideo);
+
+        volumeButton.removeEventListener('click', toggleMute);
+        fullscreenButton.removeEventListener('click', toggleFullscreen);
+
+        document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    }
+
+    function togglePlayPause() {
+        if (viewerVideo.paused || viewerVideo.ended) {
+            viewerVideo.play();
+        } else {
+            viewerVideo.pause();
+        }
+    }
+
+    function updatePlayPauseButton() {
+        if (viewerVideo.paused || viewerVideo.ended) {
+            playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+        } else {
+            playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+    }
+
+    function resetVideoState() {
+        viewerVideo.currentTime = 0;
+        updatePlayPauseButton();
+        updateProgressBar(); // Reset progress bar and time
+    }
+
+    function updateProgressBar() {
+        const percentage = (viewerVideo.currentTime / viewerVideo.duration) * 100;
+        progressBar.style.width = `${percentage}%`;
+        timeDisplay.textContent = `${formatTime(viewerVideo.currentTime)} / ${formatTime(viewerVideo.duration)}`;
+    }
+
+    function seekVideo(e) {
+        const rect = progressBarWrapper.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+        const seekTime = (clickX / width) * viewerVideo.duration;
+        viewerVideo.currentTime = seekTime;
+    }
+
+    function toggleMute() {
+        viewerVideo.muted = !viewerVideo.muted;
+        if (viewerVideo.muted) {
+            volumeButton.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        } else {
+            volumeButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+        }
+    }
+
+    function toggleFullscreen() {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) { /* Firefox */
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) { /* IE/Edge */
+                document.msExitFullscreen();
+            }
+        } else {
+            if (viewerVideo.requestFullscreen) {
+                viewerVideo.requestFullscreen();
+            } else if (viewerVideo.webkitRequestFullscreen) { /* Safari */
+                viewerVideo.webkitRequestFullscreen();
+            } else if (viewerVideo.mozRequestFullScreen) { /* Firefox */
+                viewerVideo.mozRequestFullScreen();
+            } else if (viewerVideo.msRequestFullscreen) { /* IE/Edge */
+                viewerVideo.msRequestFullscreen();
+            }
+        }
+    }
+
+    function handleFullscreenChange() {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+            fullscreenButton.innerHTML = '<i class="fas fa-compress"></i>';
+            mediaViewerContent.classList.add('fullscreen');
+        } else {
+            fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+            mediaViewerContent.classList.remove('fullscreen');
+        }
+    }
+
+    // --- Gallery Load and Viewer Logic ---
 
     const loadGallery = async () => {
-        await openDatabase(); // Ensure DB is open
+        await openDatabase();
         const allMedia = await getAllData('media');
         
-        // Filter media to only show current user's media, sorted by timestamp ascending for viewer navigation
         userMedia = allMedia
             .filter(media => media.senderId === currentUser.id)
             .sort((a, b) => a.timestamp - b.timestamp); 
 
-        galleryGrid.innerHTML = ''; // Clear existing items
+        galleryGrid.innerHTML = '';
 
         if (userMedia.length === 0) {
             galleryGrid.innerHTML = '<p style="color:#bbb; text-align: center; padding: 20px;">Your gallery is empty. Capture some media!</p>';
             return;
         }
 
-        // Display in descending order for the grid (newest first)
         [...userMedia].reverse().forEach(media => { 
             const itemDiv = document.createElement('div');
             itemDiv.className = 'gallery-item';
@@ -50,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 mediaElement.src = media.data;
             } else if (media.type === 'video') {
                 mediaElement = document.createElement('video');
-                // Use thumbnail for preview. If no thumbnail (e.g., failed generation), use video data URL.
                 mediaElement.src = media.thumbnail || (media.data instanceof Blob ? URL.createObjectURL(media.data) : media.data);
                 
                 const videoIndicator = document.createElement('span');
@@ -60,35 +195,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             mediaElement.alt = media.caption || media.type;
             
-            // Apply filter class if it's a CSS filter
             const filterInfo = FilterManager.getAllFilters().find(f => f.id === media.filtersApplied);
             if (filterInfo && filterInfo.type === 'css') {
-                 mediaElement.classList.add(filterInfo.applyFunc); // Add CSS class name
+                 mediaElement.classList.add(filterInfo.applyFunc);
             } else {
-                 // For canvas-based filters, the effect is already baked into the image/video data.
-                 mediaElement.classList.remove(...mediaElement.classList); // Clear any old filter classes
+                 mediaElement.classList.remove(...mediaElement.classList);
             }
             
-            // Apply zoom level (CSS transform)
-            if (media.zoomLevel && media.zoomLevel !== 1.0) {
-                mediaElement.style.transform = `scale(${media.zoomLevel})`; 
-            } else {
-                mediaElement.style.transform = 'none'; // No transform if no zoom or 1.0x
-            }
-            
+            mediaElement.style.transform = 'none'; // Ensure no residual transforms from camera if any
 
             const deleteItemButton = document.createElement('button');
             deleteItemButton.className = 'delete-button';
-            deleteItemButton.innerHTML = '<i class="fas fa-times"></i>'; // Font Awesome icon
+            deleteItemButton.innerHTML = '<i class="fas fa-times"></i>';
             deleteItemButton.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent opening viewer when clicking delete
+                e.stopPropagation();
                 deleteMedia(media.id);
             });
 
             itemDiv.appendChild(mediaElement);
             itemDiv.appendChild(deleteItemButton);
             itemDiv.addEventListener('click', () => {
-                // Find original index in `userMedia` array (which is sorted ascending)
                 const clickedIndex = userMedia.findIndex(m => m.id === media.id);
                 openMediaViewer(clickedIndex);
             });
@@ -99,11 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteMedia = async (id) => {
         if (confirm('Are you sure you want to delete this item?')) {
             try {
-                await openDatabase(); // Ensure DB is open
+                await openDatabase();
                 await deleteData('media', id);
                 alert('Media deleted successfully!');
-                closeMediaViewer(); // Close viewer if currently viewing deleted item
-                loadGallery(); // Reload gallery
+                closeMediaViewer();
+                loadGallery();
             } catch (error) {
                 console.error('Failed to delete media:', error);
                 alert('Failed to delete media.');
@@ -125,25 +251,22 @@ document.addEventListener('DOMContentLoaded', () => {
         viewerVideo.pause();
         viewerVideo.removeAttribute('src'); // Clear video source
         
-        viewerImage.className = ''; // Clear previous filter class
-        viewerVideo.className = ''; // Clear previous filter class
-        viewerImage.style.transform = 'none'; // Reset transform
-        viewerVideo.style.transform = 'none'; // Reset transform
+        viewerImage.className = ''; 
+        viewerVideo.className = ''; 
+        viewerImage.style.transform = 'none'; 
+        viewerVideo.style.transform = 'none'; 
 
+        // Hide video controls by default, show if it's a video
+        videoControlsContainer.style.display = 'none';
+        removeVideoControlsListeners(); // Remove old listeners before setting up new for next video
 
         if (media.type === 'image') {
             viewerImage.src = media.data;
             viewerImage.style.display = 'block';
-            // Apply CSS filter class only if it was a CSS filter
             const filterInfo = FilterManager.getAllFilters().find(f => f.id === media.filtersApplied);
             if (filterInfo && filterInfo.type === 'css') {
                  viewerImage.classList.add(filterInfo.applyFunc);
             }
-            // Apply zoom level (CSS transform)
-            if (media.zoomLevel && media.zoomLevel !== 1.0) {
-                viewerImage.style.transform = `scale(${media.zoomLevel})`; 
-            }
-
         } else if (media.type === 'video') {
             viewerVideo.src = media.data instanceof Blob ? URL.createObjectURL(media.data) : media.data;
             viewerVideo.style.display = 'block';
@@ -151,21 +274,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (filterInfo && filterInfo.type === 'css') {
                  viewerVideo.classList.add(filterInfo.applyFunc);
             }
-            if (media.zoomLevel && media.zoomLevel !== 1.0) {
-                viewerVideo.style.transform = `scale(${media.zoomLevel})`;
-            }
             viewerVideo.load();
-            viewerVideo.play();
+            viewerVideo.play(); // Auto-play video
+            
+            // Show and setup video controls for video
+            videoControlsContainer.style.display = 'flex';
+            setupVideoControls(); // Add new listeners
+            updatePlayPauseButton(); // Initial state for play/pause button
+            updateProgressBar(); // Initial state for time and progress
+            toggleMute(); // Call once to set initial volume icon correctly
         }
 
         viewerCaption.textContent = media.caption || 'No caption.';
         mediaViewerOverlay.style.display = 'flex';
+        mediaViewerOverlay.classList.add('active'); // Add active class for controls visibility CSS
 
-        // Update navigation button visibility
         prevMediaButton.style.display = currentMediaIndex > 0 ? 'flex' : 'none';
         nextMediaButton.style.display = currentMediaIndex < userMedia.length - 1 ? 'flex' : 'none';
 
-        // Set current media ID for share/download/delete buttons
         downloadButton.dataset.mediaId = media.id;
         shareButton.dataset.mediaId = media.id;
         deleteButton.dataset.mediaId = media.id;
@@ -173,16 +299,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeMediaViewer = () => {
         mediaViewerOverlay.style.display = 'none';
+        mediaViewerOverlay.classList.remove('active'); // Remove active class
         viewerImage.src = '';
         viewerVideo.src = '';
         viewerVideo.pause();
         viewerVideo.removeAttribute('src');
-        viewerImage.className = ''; // Clear filter classes
-        viewerVideo.className = ''; // Clear filter classes
+        viewerImage.className = ''; 
+        viewerVideo.className = ''; 
         viewerImage.style.transform = 'none';
         viewerVideo.style.transform = 'none';
-        currentMediaIndex = -1; // Reset index
-        // Clean up object URLs for video blobs
+        currentMediaIndex = -1; 
+        
+        removeVideoControlsListeners(); // Clean up listeners
+        videoControlsContainer.style.display = 'none'; // Ensure controls are hidden
+
         if (viewerVideo.src && viewerVideo.src.startsWith('blob:')) {
             URL.revokeObjectURL(viewerVideo.src);
         }
@@ -207,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filename += '.jpeg';
         } else if (media.type === 'video') {
             url = media.data instanceof Blob ? URL.createObjectURL(media.data) : media.data;
-            filename += '.webm'; // Assuming webm format from MediaRecorder
+            filename += '.webm';
         } else {
             return;
         }
@@ -218,10 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-
-        if (media.type === 'video' && url.startsWith('blob:')) {
-            // URL.revokeObjectURL(url); // Don't revoke immediately, might need for other ops
-        }
     };
 
     const shareMedia = async () => {
@@ -279,5 +405,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    loadGallery(); // Initial load
+    loadGallery();
 });

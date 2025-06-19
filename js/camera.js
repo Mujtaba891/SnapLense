@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const flashlightButton = document.getElementById('flashlight-button');
     const screenFlashOverlay = document.getElementById('screen-flash-overlay');
     const filterControls = document.getElementById('filter-controls');
-    const zoomSlider = document.getElementById('zoom-slider');
-    const zoomLevelSpan = document.getElementById('zoom-level');
+    // Removed: const zoomSlider = document.getElementById('zoom-slider');
+    // Removed: const zoomLevelSpan = document.getElementById('zoom-level');
 
     let currentStream = null;
     let capturedMediaData = null; // Stores Base64 image or Blob video
@@ -31,20 +31,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRecording = false;
     let recordingTimeout = null;
     let currentFacingMode = 'user'; // 'user' for front, 'environment' for back
-    let currentZoomValue = 1.0; // Current zoom level
+    // Removed: let currentZoomValue = 1.0; // Current zoom level
     let animationFrameId = null; // For the canvas drawing loop
     let frameCount = 0; // For animation-based filters
 
     const setupCanvasResolution = () => {
-        // Set canvas resolution to match common mobile portrait aspect ratio (9:16)
-        // Adjust these values for performance/quality trade-off
-        const idealWidth = 450; // Max width of container
-        const idealHeight = 800; // Approx. 16:9 ratio
+        const idealWidth = 450; 
+        const idealHeight = 800; 
 
         canvas.width = idealWidth;
         canvas.height = idealHeight;
 
-        // Set videoSource dimensions if needed, though object-fit should handle it
         videoSource.width = idealWidth;
         videoSource.height = idealHeight;
     };
@@ -53,11 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!videoSource.paused && !videoSource.ended) {
             frameCount++; // Increment frame counter for animated filters
 
-            // Apply filter via FilterManager
-            FilterManager.applyActiveFilter(ctx, videoSource, canvas, frameCount, currentZoomValue, currentFacingMode);
+            // Apply filter via FilterManager (now no currentZoomValue passed)
+            FilterManager.applyActiveFilter(ctx, videoSource, canvas, frameCount, currentFacingMode);
             
-            // Apply CSS transform for zoom only (no mirror here, as ctx handles the mirror for 'user' mode)
-            canvas.style.transform = `scale(${currentZoomValue})`;
+            // Removed: canvas.style.transform = `scale(${currentZoomValue})`; // No zoom transform here
 
             animationFrameId = requestAnimationFrame(drawFrame);
         }
@@ -68,20 +64,19 @@ document.addEventListener('DOMContentLoaded', () => {
             currentStream.getTracks().forEach(track => track.stop());
         }
         try {
-            // Adjust constraints for aspect ratio if camera supports it natively
             const constraints = { 
                 video: { 
                     facingMode: currentFacingMode,
-                    width: { ideal: 1080 }, // Request high resolution
-                    height: { ideal: 1920 }, // for 9:16 portrait
-                    aspectRatio: { exact: 9 / 16 } // Try to get 9:16 directly
+                    width: { ideal: 1080 },
+                    height: { ideal: 1920 },
+                    aspectRatio: { exact: 9 / 16 }
                 } 
             };
             currentStream = await navigator.mediaDevices.getUserMedia(constraints);
             videoSource.srcObject = currentStream;
-            videoSource.play(); // Start playing hidden video
+            videoSource.play();
 
-            setupCanvasResolution(); // Set canvas to desired output resolution
+            setupCanvasResolution();
 
             canvas.style.display = 'block';
             photoPreview.style.display = 'none';
@@ -90,20 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
             captureButton.style.display = 'block';
             captureButton.classList.remove('recording');
 
-            // Start drawing video to canvas with filters
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
             }
             animationFrameId = requestAnimationFrame(drawFrame);
 
-            // Set the CSS class for active CSS filters (if current filter is CSS-based)
             const activeFilter = FilterManager.getActiveFilter();
             if (activeFilter.type === 'css') {
-                canvas.className = activeFilter.applyFunc; // activeFilter.applyFunc holds the CSS class name
+                canvas.className = activeFilter.applyFunc;
             } else {
-                canvas.className = ''; // Clear CSS filter class if it's a canvas filter
+                canvas.className = '';
             }
-
 
         } catch (err) {
             console.error("Error accessing camera: ", err);
@@ -122,11 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const takePhoto = () => {
-        stopCamera(); // Stop live camera processing
+        stopCamera();
         
-        // Ensure the last frame is drawn to canvas before capturing
-        // This will bake in the filter, zoom, and mirror correctly
-        FilterManager.applyActiveFilter(ctx, videoSource, canvas, frameCount, currentZoomValue, currentFacingMode);
+        // Filter, mirror handled by applyActiveFilter, which bakes them into image data
+        FilterManager.applyActiveFilter(ctx, videoSource, canvas, frameCount, currentFacingMode);
 
         capturedMediaData = canvas.toDataURL('image/jpeg', 0.9);
         capturedMediaType = 'image';
@@ -137,9 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
         postCaptureControls.style.display = 'flex';
         captureButton.style.display = 'none';
         
-        canvas.style.display = 'none'; // Hide canvas, show photo preview
-        photoPreview.className = canvas.className; // Transfer CSS filter class if any
-        photoPreview.style.transform = `scale(${currentZoomValue})`; // Transfer zoom only
+        canvas.style.display = 'none';
+        photoPreview.className = canvas.className;
+        photoPreview.style.transform = 'none'; // No transform for photo preview as it's already processed
     };
 
     const startRecording = () => {
@@ -151,10 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         isRecording = true;
         captureButton.classList.add('recording');
-        videoChunks = []; // Reset chunks for new recording
+        videoChunks = [];
 
-        // MediaRecorder records from the canvas.captureStream(), so filters, zoom, and mirror are included!
-        mediaRecorder = new MediaRecorder(canvas.captureStream(30), { mimeType: 'video/webm; codecs=vp8' }); // 30fps
+        // MediaRecorder records from the canvas.captureStream(), so filters and mirroring are included!
+        mediaRecorder = new MediaRecorder(canvas.captureStream(30), { mimeType: 'video/webm; codecs=vp8' });
 
         mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
@@ -173,16 +164,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             photoPreview.src = videoUrl;
             photoPreview.setAttribute('data-type', 'video');
-            photoPreview.setAttribute('controls', ''); // Show controls for video playback
+            photoPreview.setAttribute('controls', '');
             photoPreview.style.display = 'block';
             captionInput.style.display = 'block';
             postCaptureControls.style.display = 'flex';
             captureButton.style.display = 'none';
             
-            canvas.style.display = 'none'; // Hide canvas, show video preview
-            photoPreview.className = canvas.className; // Transfer CSS filter class if any
-            photoPreview.style.transform = `scale(${currentZoomValue})`; // Transfer zoom only
-            stopCamera(); // Stop live processing
+            canvas.style.display = 'none';
+            photoPreview.className = canvas.className;
+            photoPreview.style.transform = 'none'; // No transform for video preview
+            stopCamera();
         };
 
         mediaRecorder.start();
@@ -193,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mediaRecorder.stop();
                 console.log('Recording stopped automatically after 30 seconds.');
             }
-        }, 30000); // 30 seconds
+        }, 30000);
     };
 
     const stopRecording = () => {
@@ -204,12 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Long press / click logic for capture button
+    // Long press / click logic for capture button (UNMODIFIED)
     let pressTimer;
-    const PRESS_THRESHOLD = 200; // ms
+    const PRESS_THRESHOLD = 200;
 
     captureButton.addEventListener('mousedown', (e) => {
-        if (e.button === 0) { // Left click only
+        if (e.button === 0) {
             pressTimer = setTimeout(startRecording, PRESS_THRESHOLD);
         }
     });
@@ -218,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isRecording) {
             stopRecording();
         } else if (mediaRecorder && mediaRecorder.state === 'recording') {
-            // Do nothing if recording was already started and button released before threshold
         } else {
             takePhoto();
         }
@@ -230,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // For mobile touch events
     captureButton.addEventListener('touchstart', (e) => {
         e.preventDefault();
         pressTimer = setTimeout(startRecording, PRESS_THRESHOLD);
@@ -241,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isRecording) {
             stopRecording();
         } else if (mediaRecorder && mediaRecorder.state === 'recording') {
-            // Same as mouseup, prevent photo capture if recording was in progress
         } else {
             takePhoto();
         }
@@ -262,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
         photoPreview.removeAttribute('controls');
         photoPreview.removeAttribute('data-type');
         photoPreview.className = '';
-        photoPreview.style.transform = ''; // Reset transform
-        startCamera(); // Restart camera
+        photoPreview.style.transform = 'none'; // Reset transform
+        startCamera();
     });
 
     saveGalleryButton.addEventListener('click', async () => {
@@ -277,19 +265,18 @@ document.addEventListener('DOMContentLoaded', () => {
             type: capturedMediaType,
             caption: captionInput.value.trim(),
             timestamp: Date.now(),
-            filtersApplied: FilterManager.getActiveFilter().id, // Save filter ID
-            zoomLevel: currentZoomValue // Save zoom level
+            filtersApplied: FilterManager.getActiveFilter().id,
+            // Removed: zoomLevel: currentZoomValue // No longer saving zoom level
         };
 
         if (capturedMediaType === 'image') {
-            mediaToSave.data = capturedMediaData; // Base64
+            mediaToSave.data = capturedMediaData;
             await saveAndRedirect(mediaToSave);
         } else if (capturedMediaType === 'video') {
-            mediaToSave.data = capturedMediaData; // Blob
-            // Generate thumbnail for video
+            mediaToSave.data = capturedMediaData;
             const tempVideoElement = document.createElement('video');
             tempVideoElement.src = URL.createObjectURL(capturedMediaData);
-            tempVideoElement.currentTime = 0.1; // Seek to a very early point for thumbnail
+            tempVideoElement.currentTime = 0.1;
             
             tempVideoElement.onloadeddata = async () => {
                 const tempCanvas = document.createElement('canvas');
@@ -297,19 +284,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 tempCanvas.height = tempVideoElement.videoHeight;
                 const tempCtx = tempCanvas.getContext('2d');
                 
-                // Draw thumbnail WITHOUT mirror (as media is already baked, but ensure consistency)
                 tempCtx.drawImage(tempVideoElement, 0, 0, tempCanvas.width, tempCanvas.height);
 
                 mediaToSave.thumbnail = tempCanvas.toDataURL('image/jpeg', 0.7);
                 
                 await saveAndRedirect(mediaToSave);
-                URL.revokeObjectURL(tempVideoElement.src); // Clean up temp URL
+                URL.revokeObjectURL(tempVideoElement.src);
             };
             tempVideoElement.onerror = async () => {
                 console.error("Error loading video for thumbnail, saving without thumbnail.");
                 mediaToSave.thumbnail = null;
                 await saveAndRedirect(mediaToSave);
-                URL.revokeObjectURL(tempVideoElement.src); // Clean up temp URL
+                URL.revokeObjectURL(tempVideoElement.src);
             };
         }
     });
@@ -326,13 +312,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Camera Switch Button
+    // Camera Switch Button (UNMODIFIED)
     switchCameraButton.addEventListener('click', () => {
         currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
         startCamera();
     });
 
-    // Flashlight Button (Simulated)
+    // Flashlight Button (Simulated) (UNMODIFIED)
     flashlightButton.addEventListener('click', () => {
         screenFlashOverlay.style.opacity = 1;
         setTimeout(() => {
@@ -340,14 +326,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     });
 
-    // Zoom functionality
-    zoomSlider.addEventListener('input', () => {
-        currentZoomValue = parseFloat(zoomSlider.value);
-        zoomLevelSpan.textContent = `${currentZoomValue.toFixed(1)}x`;
-        // Zoom is applied in drawFrame()
-    });
+    // Removed: Zoom functionality
+    // zoomSlider.addEventListener('input', () => {
+    //     currentZoomValue = parseFloat(zoomSlider.value);
+    //     zoomLevelSpan.textContent = `${currentZoomValue.toFixed(1)}x`;
+    // });
 
-    // Initialize filter buttons
+    // Initialize filter buttons (UNMODIFIED, except internal logic for CSS vs Canvas)
     const initializeFilterButtons = () => {
         filterControls.innerHTML = '';
         FilterManager.getAllFilters().forEach(filter => {
@@ -357,13 +342,11 @@ document.addEventListener('DOMContentLoaded', () => {
             button.dataset.filterId = filter.id;
             button.addEventListener('click', () => {
                 FilterManager.setActiveFilter(filter.id);
-                // Apply CSS class if it's a CSS filter, otherwise clear
                 if (filter.type === 'css') {
-                    canvas.className = filter.applyFunc; // The CSS class name
+                    canvas.className = filter.applyFunc;
                 } else {
-                    canvas.className = ''; // Clear CSS filter if custom canvas filter
+                    canvas.className = '';
                 }
-                // Update active button state
                 Array.from(filterControls.children).forEach(btn => {
                     if (btn.dataset.filterId === filter.id) {
                         btn.classList.add('active');
@@ -374,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             filterControls.appendChild(button);
         });
-        // Set initial active filter state for the 'None' button
         const noneFilterButton = filterControls.querySelector(`[data-filter-id="none"]`);
         if (noneFilterButton) {
             noneFilterButton.classList.add('active');
