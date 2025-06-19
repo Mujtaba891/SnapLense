@@ -1,199 +1,335 @@
-/* css/style.css */
+/* ==========================================================================
+   0. Root Variables & Global Resets
+   ========================================================================== */
 
 :root {
-    /* New Light/Vibrant Theme Colors */
-    --primary-blue: #663399; /* Deep Purple */
-    --accent-pink: #FF69B4;  /* Hot Pink */
-    --secondary-green: #90EE90; /* Light Green */
-    --tertiary-purple: #B19CD9; /* Lavender Purple */
-    --text-dark: #333;       /* Dark text for light backgrounds */
-    --text-light: #F8F8F8;   /* Light text for dark backgrounds */
-    --background-light: #FFFFFF; /* White background */
-    --background-mid: #F0F0F0;   /* Light gray background */
-    --background-dark: #E0E0E0;  /* Slightly darker gray for elements */
-    --border-radius: 12px;
+    /* Color Palette - Inspired by vibrant, modern themes */
+    --primary-purple: #663399;        /* Deep, rich purple for headers, main buttons */
+    --accent-pink: #FF69B4;           /* Hot pink for highlights, active states, calls to action */
+    --secondary-green: #90EE90;       /* Light green for success messages, subtle accents */
+    --tertiary-lavender: #B19CD9;     /* Soft lavender for muted elements, secondary text */
+    --text-dark: #333333;             /* Dark grey for primary text on light backgrounds */
+    --text-light: #F8F8F8;            /* Off-white for text on dark backgrounds */
+    --background-light: #FFFFFF;      /* Pure white for main content areas */
+    --background-mid: #F0F0F0;        /* Light grey for body background, form backgrounds */
+    --background-dark: #E0E0E0;       /* Slightly darker grey for borders, secondary backgrounds */
+    --overlay-dark: rgba(0, 0, 0, 0.95); /* Dark overlay for modals/viewers */
+    --overlay-light: rgba(255, 255, 255, 0.15); /* Light overlay for interactive elements */
+
+    /* Spacing & Sizing */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    --spacing-xl: 25px;
+
+    /* Border Radii */
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 20px;
+    --border-radius-circle: 50%;
+
+    /* Component Heights */
     --header-height: 55px;
     --footer-height: 60px;
+    --button-height-md: 48px; /* For general action buttons */
+    --input-height-md: 48px;  /* For form inputs */
+
+    /* Box Shadows */
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);    /* Light shadow for headers, small elements */
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);   /* Medium shadow for cards, buttons */
+    --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.25);  /* Strong shadow for modals, prominent elements */
+    --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.08); /* Inset for inputs */
+    --shadow-focus: 0 0 0 3px rgba(102, 51, 153, 0.3); /* Focus ring for accessibility */
+
+    /* Typography */
+    --font-family-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-base: 16px;
+    --font-size-sm: 0.85em;
+    --font-size-md: 1em;
+    --font-size-lg: 1.1em;
+    --font-size-xl: 1.6em;
+    --font-size-xxl: 2.2em;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Transitions */
+    --transition-fast: 0.1s ease;
+    --transition-medium: 0.2s ease;
+    --transition-slow: 0.3s ease;
 }
 
-* {
+/* Universal box-sizing and outline reset */
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
 }
 
+/* HTML and Body base styles */
 html, body {
     height: 100%;
     width: 100%;
-    overflow: hidden; /* Control overall scrolling */
+    overflow: hidden; /* Control overall scrolling to container */
+    font-size: var(--font-size-base);
+    line-height: 1.5;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-family-primary);
     background-color: var(--background-mid);
     color: var(--text-dark);
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center container horizontally */
-    justify-content: flex-start; /* Push container to top */
+    align-items: center; /* Center main container horizontally */
+    justify-content: flex-start; /* Align content to top */
+    -webkit-font-smoothing: antialiased; /* Smoother text rendering */
+    -moz-osx-font-smoothing: grayscale; /* Smoother text rendering */
 }
 
-/* Mobile-first approach: Centered container */
+/* Disable text selection for a more app-like feel */
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* ==========================================================================
+   1. Main Container Layout
+   ========================================================================== */
+
 .container {
-    max-width: 450px; /* Typical phone width */
+    max-width: 450px; /* Standard smartphone width */
     width: 100%;
-    min-height: 100vh; /* Ensure container is full height on small screens */
+    min-height: 100vh; /* Ensures it fills height on mobile */
     background-color: var(--background-light);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
-    position: relative;
-    overflow: hidden; /* Hide scrollbars, let main content handle */
+    position: relative; /* For absolute positioning of children */
+    overflow: hidden; /* Hide internal scrollbars, `main` handles content scroll */
 }
 
-/* Header */
+/* ==========================================================================
+   2. Header Styles
+   ========================================================================== */
+
 header {
-    background-color: var(--primary-blue);
+    background-color: var(--primary-purple);
     color: var(--text-light);
-    padding: 10px 15px;
+    padding: var(--spacing-sm) var(--spacing-md);
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     height: var(--header-height);
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure header is on top */
+    box-shadow: var(--shadow-sm);
     width: 100%; /* Ensure header fills container width */
 }
 
 header h1 {
-    font-size: 1.6em;
-    font-weight: 600;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.5px;
 }
 
-/* Back/Action Buttons */
+/* Action buttons in header (Logout, Switch Camera) */
 .action-button {
     background: none;
     border: none;
     color: var(--text-light);
-    font-size: 1.1em;
+    font-size: var(--font-size-lg);
     cursor: pointer;
-    padding: 5px 10px;
-    border-radius: var(--border-radius);
-    transition: background-color 0.2s ease;
-    display: flex;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    transition: background-color var(--transition-fast);
+    display: flex; /* For icon and text alignment */
     align-items: center;
-    gap: 5px;
-}
-.action-button:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-}
-.action-button i {
-    font-size: 1.2em; /* Font Awesome icon size */
+    gap: var(--spacing-xs);
+    font-weight: var(--font-weight-medium);
+    outline: none; /* Remove default outline */
 }
 
-/* Main Content Area */
+.action-button:hover {
+    background-color: var(--overlay-light);
+}
+
+.action-button:active {
+    background-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(1px); /* Slight press effect */
+}
+
+.action-button i {
+    font-size: 1.2em; /* Adjust Font Awesome icon size relative to text */
+}
+
+/* Accessibility focus styles */
+.action-button:focus-visible {
+    box-shadow: var(--shadow-focus);
+    outline: none;
+}
+
+/* Placeholder div for balanced header layout */
+header div:empty {
+    width: 50px; /* Adjust to match button width for centering */
+}
+
+
+/* ==========================================================================
+   3. Main Content Area
+   ========================================================================== */
+
 main {
-    flex-grow: 1; /* Take up remaining space */
-    overflow-y: auto; /* Enable scrolling for content if needed */
-    padding: 0; /* Remove padding here to allow camera to fill space */
+    flex-grow: 1; /* Take up all remaining vertical space */
+    overflow-y: auto; /* Enable scrolling for main content if it overflows */
+    padding: 0; /* No padding here, sub-components manage their own */
     display: flex;
     flex-direction: column;
-    position: relative; /* For absolutely positioned elements within main */
+    position: relative; /* Context for absolute positioning of camera/gallery elements */
+    background-color: var(--background-light); /* Default background for main */
 }
 
-/* Forms (Login/Register) */
+
+/* ==========================================================================
+   4. Authentication Forms (index.html)
+   ========================================================================== */
+
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    margin-top: 50px;
-    padding: 25px;
+    gap: var(--spacing-md);
+    margin-top: 50px; /* Space from top of page */
+    padding: var(--spacing-xl);
     background-color: var(--background-mid);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-md);
     max-width: 320px;
     width: 100%;
     margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-right: auto; /* Center the form horizontally */
+    box-shadow: var(--shadow-md);
+    animation: fadeIn 0.5s ease-out; /* Simple fade-in animation */
 }
 
 .auth-form h2 {
     text-align: center;
-    color: var(--primary-blue);
-    margin-bottom: 25px;
-    font-size: 2.2em;
+    color: var(--primary-purple);
+    margin-bottom: var(--spacing-xl);
+    font-size: var(--font-size-xxl);
+    font-weight: var(--font-weight-bold);
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    letter-spacing: 1px;
 }
 
 .auth-form input[type="text"],
 .auth-form input[type="password"] {
-    padding: 14px;
+    padding: var(--spacing-md);
     border: 1px solid var(--background-dark);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-sm);
     background-color: var(--background-light);
     color: var(--text-dark);
-    font-size: 1.05em;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: var(--font-size-lg);
+    box-shadow: var(--shadow-inset);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    height: var(--input-height-md); /* Consistent input height */
 }
 
 .auth-form input::placeholder {
     color: #888;
+    opacity: 0.7; /* Make placeholder text slightly lighter */
+}
+
+.auth-form input:focus {
+    border-color: var(--primary-purple);
+    box-shadow: var(--shadow-focus);
+    outline: none; /* Remove default outline */
 }
 
 .auth-form button {
-    padding: 14px;
+    padding: var(--spacing-md);
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-sm);
     background-color: var(--accent-pink);
     color: var(--text-light);
-    font-size: 1.2em;
-    font-weight: bold;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color var(--transition-medium), transform var(--transition-fast);
+    box-shadow: var(--shadow-md);
+    height: var(--button-height-md); /* Consistent button height */
+    text-transform: uppercase; /* Make button text uppercase */
+    letter-spacing: 0.5px;
+    outline: none;
 }
 
 .auth-form button:hover {
-    background-color: #FF8CBF;
-    transform: translateY(-1px);
+    background-color: #FF8CBF; /* Lighter pink on hover */
+    transform: translateY(-1px); /* Slight lift effect */
 }
 .auth-form button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(0); /* Press down effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Reduce shadow on press */
+}
+.auth-form button:focus-visible {
+    box-shadow: var(--shadow-focus);
 }
 
 .auth-form p {
     text-align: center;
-    font-size: 0.95em;
+    font-size: var(--font-size-sm);
     color: var(--text-dark);
+    margin-top: var(--spacing-sm);
 }
 
 .auth-form p a {
-    color: var(--primary-blue);
+    color: var(--primary-purple);
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.2s ease;
+    font-weight: var(--font-weight-bold);
+    transition: color var(--transition-fast);
+    outline: none;
 }
 
 .auth-form p a:hover {
-    color: #805BB0;
+    color: #805BB0; /* Lighter purple on hover */
+}
+.auth-form p a:focus-visible {
+    box-shadow: var(--shadow-focus);
+    border-radius: var(--border-radius-xs);
 }
 
 .message-text {
-    color: #FF6B6B; /* Soft Red for errors */
+    color: #FF6B6B; /* Soft red for errors */
     text-align: center;
-    margin-top: 10px;
-    font-weight: 500;
+    margin-top: var(--spacing-sm);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+    animation: slideInFromTop 0.3s ease-out; /* Animation for messages */
 }
 .message-text.success {
-    color: var(--secondary-green);
+    color: var(--secondary-green); /* Soft green for success messages */
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromTop {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 
-/* Camera Page */
+/* ==========================================================================
+   5. Camera Page (camera.html)
+   ========================================================================== */
+
 .camera-container {
     position: absolute; /* Takes full space of main */
     top: 0;
@@ -204,36 +340,39 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: black;
-    z-index: 1; /* Below header/footer if they are not absolute */
+    background-color: black; /* Black background for camera area */
+    z-index: 1; /* Ensures it's below header/footer if they are absolute */
     padding-bottom: var(--footer-height); /* Space for bottom controls */
     padding-top: var(--header-height); /* Space for top controls */
+    overflow: hidden; /* Crucial to hide any overflow from canvas scaling/cropping */
 }
 
-/* Video element hidden, used as source for canvas */
+/* Hidden video element used as source for canvas drawing */
 #camera-video-source {
     display: none;
 }
 
-/* Canvas for displaying filtered video/photo */
+/* Main visible canvas for live camera feed and captured photos/videos */
 #camera-canvas {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Maintain aspect ratio, cover container */
-    background-color: black; /* In case camera not ready */
+    object-fit: cover; /* Ensures video covers canvas area, cropping if aspect mismatch */
+    /* No transform: scaleX(-1) here, mirroring handled by JS context transformation */
+    /* No transition for zoom, as zoom removed */
+    background-color: black; /* Fallback background if camera not ready */
 }
 
-/* Photo preview (after capture) will also be on an image element */
+/* Photo preview (after capture) will take over the canvas area */
 #photo-preview {
     display: none; /* Hidden by default */
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* No transform: scaleX(-1) here, as captured data is already correctly oriented */
     background-color: black;
 }
 
-
-/* Camera Controls */
+/* Camera Controls Overlays */
 .camera-controls-top,
 .camera-controls-bottom {
     position: absolute;
@@ -241,146 +380,200 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    z-index: 10;
+    padding: var(--spacing-md) var(--spacing-lg);
+    z-index: 10; /* Above camera feed */
+    /* Gradient background for visual depth over camera feed */
     background: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
 }
+
 .camera-controls-top {
-    top: var(--header-height); /* Below main header */
+    top: var(--header-height); /* Position below main app header */
     background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
 }
+
 .camera-controls-bottom {
-    bottom: var(--footer-height); /* Above main footer */
+    bottom: var(--footer-height); /* Position above main app footer */
     background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
 }
 
+/* Specific Camera Action Buttons (Flashlight, Gallery, Switch Camera) */
 .camera-action-button {
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.4); /* Semi-transparent dark background */
     border: none;
-    border-radius: 50%;
+    border-radius: var(--border-radius-circle); /* Perfect circle */
     width: 45px;
     height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    color: var(--text-light); /* Font Awesome icon color */
-    font-size: 1.2em;
-}
-.camera-action-button:hover {
-    background-color: rgba(0,0,0,0.6);
-}
-.camera-action-button:active {
-    transform: scale(0.95);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Subtle shadow for depth */
+    color: var(--text-light); /* White icon */
+    font-size: 1.2em; /* Font Awesome icon size */
+    outline: none;
 }
 
+.camera-action-button:hover {
+    background-color: rgba(0,0,0,0.6); /* Darker on hover */
+}
+
+.camera-action-button:active {
+    transform: scale(0.95); /* Slight press down effect */
+}
+
+.camera-action-button:focus-visible {
+    box-shadow: var(--shadow-focus);
+}
+
+
+/* Main Capture Button (Photo/Video) */
 #capture-button {
     width: 75px;
     height: 75px;
-    border-radius: 50%;
-    background-color: var(--text-light);
-    border: 5px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--border-radius-circle);
+    background-color: var(--text-light); /* White button by default */
+    border: 5px solid rgba(255, 255, 255, 0.5); /* Semi-transparent white border */
     cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-    box-shadow: 0 0 15px rgba(255,255,255,0.4);
-}
-#capture-button:active {
-    transform: scale(0.9);
-}
-#capture-button.recording {
-    background-color: var(--accent-pink);
-    border-color: var(--primary-blue);
-    transform: scale(0.95);
+    transition: transform var(--transition-medium), background-color var(--transition-medium), border-color var(--transition-medium);
+    box-shadow: 0 0 15px rgba(255,255,255,0.4); /* Outer glow effect */
+    outline: none;
 }
 
+#capture-button:active {
+    transform: scale(0.9); /* More pronounced press effect */
+}
+
+#capture-button.recording {
+    background-color: var(--accent-pink); /* Pink when recording */
+    border-color: var(--primary-purple); /* Purple border when recording */
+    transform: scale(0.95); /* Slightly smaller while recording */
+    animation: pulse 1.5s infinite alternate; /* Pulsing animation when recording */
+}
+
+/* Keyframe for recording pulse */
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 15px rgba(255,105,180,0.6), 0 0 0 0px rgba(255,105,180,0.4); }
+    100% { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,105,180,0.8), 0 0 0 10px rgba(255,105,180,0); }
+}
+
+
+/* Filter Selection Controls */
 .filter-controls {
     position: absolute;
-    top: calc(var(--header-height) + 55px); /* Below top camera controls */
+    top: calc(var(--header-height) + 55px); /* Positioned below top camera controls */
     left: 0;
     width: 100%;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.6);
+    padding: var(--spacing-sm);
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
     display: flex;
-    overflow-x: auto;
-    gap: 10px;
+    overflow-x: auto; /* Enable horizontal scrolling for many filters */
+    gap: var(--spacing-sm);
     z-index: 10;
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-sm); /* Subtle shadow below filter bar */
+    border-radius: var(--border-radius-sm); /* Rounded corners for the bar */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(5px); /* Safari support */
 }
 
 .filter-button {
-    flex-shrink: 0;
+    flex-shrink: 0; /* Prevent buttons from shrinking */
     padding: 8px 12px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2); /* Light transparent background */
     color: var(--text-light);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-sm);
     cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    font-size: var(--font-size-sm);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    font-weight: var(--font-weight-medium);
+    outline: none;
 }
 
 .filter-button.active {
-    background-color: var(--primary-blue);
-    border-color: var(--accent-pink);
-    font-weight: bold;
-    box-shadow: 0 0 8px var(--accent-pink);
+    background-color: var(--primary-purple); /* Active state background */
+    border-color: var(--accent-pink); /* Active state border color */
+    font-weight: var(--font-weight-bold);
+    box-shadow: 0 0 8px var(--accent-pink); /* Glow effect for active filter */
+    transform: scale(1.05); /* Slightly larger when active */
 }
 
 .filter-button:hover:not(.active) {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.3); /* Darker transparent on hover */
+}
+.filter-button:focus-visible {
+    box-shadow: var(--shadow-focus);
 }
 
+/* Caption Input after capture */
 #caption-input {
     display: none; /* Hidden by default */
     position: absolute;
-    top: 20%;
+    top: 20%; /* Position from top */
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* Center horizontally */
     width: 80%;
-    padding: 12px;
+    padding: var(--spacing-md);
     background-color: rgba(0, 0, 0, 0.7);
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-md);
     color: var(--text-light);
-    font-size: 1.2em;
+    font-size: var(--font-size-lg);
     text-align: center;
-    z-index: 6;
-    backdrop-filter: blur(5px);
+    z-index: 6; /* Below camera controls but above image */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(5px); /* Safari support */
+    outline: none;
+    resize: none; /* Prevent manual resizing of textarea if it were one */
 }
 
+#caption-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+#caption-input:focus {
+    box-shadow: 0 0 10px var(--accent-pink);
+}
+
+/* Post-Capture Action Buttons (Retake, Save) */
 .post-capture-controls {
     display: none; /* Hidden by default */
     position: absolute;
-    bottom: var(--footer-height); /* Above actual footer */
+    bottom: var(--footer-height); /* Position above main app footer */
     width: 100%;
-    justify-content: space-around;
-    gap: 15px;
-    padding: 15px 20px;
+    justify-content: space-around; /* Distribute buttons evenly */
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
     z-index: 10;
     background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
     box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
 }
 
 .post-capture-controls button {
-    flex: 1;
-    padding: 14px 15px;
+    flex: 1; /* Distribute space evenly */
+    padding: var(--spacing-md) var(--spacing-sm);
     border: none;
-    border-radius: var(--border-radius);
-    font-size: 1.05em;
-    font-weight: bold;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
-    background-color: var(--primary-blue);
+    background-color: var(--primary-purple);
     color: var(--text-light);
-    transition: background-color 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    outline: none;
 }
 
 .post-capture-controls button:hover {
-    background-color: #805BB0;
+    background-color: #805BB0; /* Lighter purple on hover */
 }
+.post-capture-controls button:active {
+    transform: translateY(1px);
+}
+.post-capture-controls button:focus-visible {
+    box-shadow: var(--shadow-focus);
+}
+
 
 /* Screen flash effect for simulated flashlight */
 #screen-flash-overlay {
@@ -389,36 +582,48 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: white;
-    opacity: 0;
-    z-index: 100;
-    pointer-events: none; /* Allow clicks to pass through */
-    transition: opacity 0.1s ease-out;
+    background-color: white; /* Bright white flash */
+    opacity: 0; /* Hidden by default */
+    z-index: 100; /* Above camera feed, below controls */
+    pointer-events: none; /* Allows clicks to pass through */
+    transition: opacity 0.1s ease-out; /* Quick fade out effect */
 }
 
 
-/* Gallery Page */
-/* Adjust grid for 9:16 aspect ratio thumbnails */
+/* ==========================================================================
+   6. Gallery Page (gallery.html)
+   ========================================================================== */
+
 .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(calc( (100% / 3) - 10px ), 1fr)); /* Approximately 3 columns */
-    gap: 10px;
-    padding: 15px;
+    /* Responsive grid: 3 columns, adapting minimum width for items */
+    grid-template-columns: repeat(auto-fill, minmax(calc( (100% / 3) - 10px ), 1fr));
+    gap: var(--spacing-sm); /* Spacing between grid items */
+    padding: var(--spacing-md);
     width: 100%;
+    flex-grow: 1; /* Allow grid to fill available space */
+    align-content: flex-start; /* Aligns items to the start, prevents stretching */
 }
 
 .gallery-item {
     position: relative;
     width: 100%;
-    padding-bottom: calc(100% / 9 * 16); /* width:height = 9:16 */
-    overflow: hidden;
-    border-radius: var(--border-radius);
-    background-color: var(--background-dark);
+    /* Maintain 9:16 aspect ratio using padding-bottom hack */
+    padding-bottom: calc(100% / 9 * 16); 
+    overflow: hidden; /* Hide content outside the padded box */
+    border-radius: var(--border-radius-sm);
+    background-color: var(--background-dark); /* Placeholder background */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.gallery-item:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: var(--shadow-md); /* More pronounced shadow */
 }
 
 .gallery-item img,
@@ -428,18 +633,19 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    pointer-events: none; /* Prevent media controls interference */
+    object-fit: cover; /* Fill the item, cropping if necessary */
+    pointer-events: none; /* Prevent default video controls/image drag */
+    /* No mirroring or zoom transforms here; data is already processed */
 }
 
 .gallery-item .delete-button {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: rgba(255, 0, 0, 0.7);
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    background-color: rgba(255, 0, 0, 0.7); /* Semi-transparent red */
     color: white;
     border: none;
-    border-radius: 50%;
+    border-radius: var(--border-radius-circle);
     width: 28px;
     height: 28px;
     font-size: 0.9em;
@@ -449,39 +655,51 @@ main {
     cursor: pointer;
     z-index: 2; /* Above image/video */
     opacity: 0.8;
-    transition: opacity 0.2s ease, transform 0.1s ease;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    outline: none;
 }
 .gallery-item .delete-button:hover {
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1.1); /* Slightly larger on hover */
+}
+.gallery-item .delete-button:focus-visible {
+    box-shadow: var(--shadow-focus);
 }
 
 .gallery-item .video-indicator {
     position: absolute;
-    bottom: 5px;
-    left: 5px;
-    background-color: rgba(0, 0, 0, 0.6);
+    bottom: var(--spacing-xs);
+    left: var(--spacing-xs);
+    background-color: rgba(0, 0, 0, 0.6); /* Dark transparent background */
     color: white;
     padding: 3px 6px;
-    border-radius: 5px;
+    border-radius: var(--border-radius-xs);
     font-size: 0.7em;
+    font-weight: var(--font-weight-semibold);
     z-index: 2;
 }
 
-/* Media Viewer Overlay */
+/* Media Viewer Overlay (Full screen view of media) */
 .media-viewer-overlay {
-    position: fixed;
+    position: fixed; /* Fixed to viewport */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: var(--overlay-dark); /* Very dark, almost black background */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
-    display: none; /* Hidden by default */
+    z-index: 2000; /* Highest z-index to cover everything */
+    opacity: 0; /* Hidden by default */
+    pointer-events: none; /* Allow clicks through when hidden */
+    transition: opacity var(--transition-medium); /* Smooth fade in/out */
+}
+
+.media-viewer-overlay.active {
+    opacity: 1;
+    pointer-events: all; /* Enable interactions when active */
 }
 
 .media-viewer-content {
@@ -489,82 +707,95 @@ main {
     width: 90%; /* Max width for content */
     height: 85%; /* Max height for content */
     display: flex;
+    flex-direction: column; /* Stack media and caption */
     align-items: center;
     justify-content: center;
-    flex-direction: column;
+    /* No specific background or shadow here, handled by media elements */
 }
 
 .media-viewer-content img,
 .media-viewer-content video {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* Fit media within the viewer frame */
-    border-radius: var(--border-radius);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    object-fit: contain; /* Fit media within the viewer frame without cropping */
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7); /* Strong shadow for visual pop */
+    /* No mirroring or zoom transforms; data is already processed */
+    transition: transform var(--transition-medium); /* For potential future scale animations */
 }
 
 
 .media-viewer-overlay .caption {
     color: var(--text-light);
-    margin-top: 15px;
-    font-size: 1.2em;
+    margin-top: var(--spacing-md);
+    font-size: var(--font-size-lg);
     text-align: center;
-    padding: 0 20px;
+    padding: 0 var(--spacing-lg);
+    max-width: 90%;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Text shadow for readability */
 }
 
+/* Controls within the media viewer (Close, Navigation) */
 .media-viewer-overlay .viewer-top-controls {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     display: flex;
-    justify-content: flex-end;
-    padding: 10px;
+    justify-content: flex-end; /* Align close button to top-right */
+    padding: var(--spacing-sm);
 }
 
 .media-viewer-overlay .close-button {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
     border: none;
     color: var(--text-light);
-    font-size: 1.8em;
+    font-size: 1.8em; /* Large icon size */
     cursor: pointer;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
+    border-radius: var(--border-radius-circle);
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-fast);
+    outline: none;
 }
 .media-viewer-overlay .close-button:hover {
     background: rgba(255, 255, 255, 0.4);
+}
+.media-viewer-overlay .close-button:focus-visible {
+    box-shadow: var(--shadow-focus);
 }
 
 
 .media-viewer-overlay .viewer-bottom-controls {
     position: absolute;
-    bottom: 0;
+    bottom: 0; /* Aligned to the bottom of the viewer */
     left: 0;
     width: 100%;
     display: flex;
-    justify-content: space-around;
-    padding: 15px 10px;
-    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+    justify-content: space-around; /* Distribute buttons */
+    padding: var(--spacing-md) var(--spacing-sm);
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%); /* Gradient overlay */
 }
 
 .media-viewer-overlay .viewer-bottom-controls button {
-    background-color: var(--primary-blue);
+    background-color: var(--primary-purple);
     color: var(--text-light);
     border: none;
-    border-radius: var(--border-radius);
-    padding: 10px 15px;
-    font-size: 1em;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 5px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    gap: var(--spacing-xs);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    outline: none;
 }
 .media-viewer-overlay .viewer-bottom-controls button:hover {
     background-color: #805BB0;
@@ -573,8 +804,12 @@ main {
 .media-viewer-overlay .viewer-bottom-controls button:active {
     transform: translateY(0);
 }
+.media-viewer-overlay .viewer-bottom-controls button:focus-visible {
+    box-shadow: var(--shadow-focus);
+}
 
 
+/* Navigation Arrows (Prev/Next) */
 .media-viewer-overlay .nav-arrow {
     position: absolute;
     top: 50%;
@@ -582,7 +817,7 @@ main {
     background: rgba(0, 0, 0, 0.4);
     color: var(--text-light);
     border: none;
-    border-radius: 50%;
+    border-radius: var(--border-radius-circle);
     width: 50px;
     height: 50px;
     font-size: 2em;
@@ -590,23 +825,33 @@ main {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-    z-index: 2001; /* Above content */
+    transition: background-color var(--transition-fast);
+    z-index: 2001; /* Above media content, below close button */
+    outline: none;
 }
 .media-viewer-overlay .nav-arrow:hover {
     background: rgba(0, 0, 0, 0.6);
 }
+.media-viewer-overlay .nav-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+.media-viewer-overlay .nav-arrow:focus-visible {
+    box-shadow: var(--shadow-focus);
+}
 .media-viewer-overlay .nav-arrow.left {
-    left: 10px;
+    left: var(--spacing-md);
 }
 .media-viewer-overlay .nav-arrow.right {
-    right: 10px;
+    right: var(--spacing-md);
 }
 
 
-/* Footer Navigation */
+/* ==========================================================================
+   7. Footer Navigation (Common to Camera & Gallery)
+   ========================================================================== */
+
 footer {
-    background-color: var(--primary-blue);
+    background-color: var(--primary-purple);
     color: var(--text-light);
     display: flex;
     justify-content: space-around;
@@ -616,32 +861,41 @@ footer {
     z-index: 1000;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     width: 100%;
-    margin-top: auto; /* Push to bottom if content is short */
+    margin-top: auto; /* Pushes footer to bottom if content is shorter */
 }
 
 .nav-button {
-    flex: 1;
+    flex: 1; /* Distribute space evenly */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 8px 0;
+    padding: var(--spacing-xs) 0;
     text-decoration: none;
     color: var(--text-light);
-    font-size: 0.85em;
+    font-size: var(--font-size-sm);
     gap: 3px;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-fast);
+    outline: none;
 }
 
 .nav-button:hover {
     background-color: rgba(255, 255, 255, 0.15);
+}
+.nav-button:focus-visible {
+    box-shadow: var(--shadow-focus);
 }
 
 .nav-button i {
     font-size: 1.5em; /* Font Awesome icon size */
 }
 
-/* Filter Classes (CSS-based - simpler effects) */
+
+/* ==========================================================================
+   8. Filter Specific Styles (CSS-based filters)
+      These are primarily CSS 'filter' property values
+   ========================================================================== */
+
 .filter-css-none { filter: none; }
 .filter-css-grayscale { filter: grayscale(100%); }
 .filter-css-sepia { filter: sepia(100%); }
@@ -670,28 +924,58 @@ footer {
 .filter-css-glow { filter: brightness(1.3) saturate(1.5) contrast(1.1); }
 .filter-css-duotone { filter: grayscale(100%) contrast(1.5) brightness(0.8) sepia(100%) hue-rotate(200deg); }
 
+/* Additional CSS Filters for variety */
+.filter-css-desaturated { filter: saturate(0.5); }
+.filter-css-high-key { filter: brightness(1.5) contrast(0.8); }
+.filter-css-low-key { filter: brightness(0.5) contrast(1.2); }
+.filter-css-cool-blue { filter: sepia(30%) hue-rotate(200deg) saturate(1.5); }
+.filter-css-warm-red { filter: sepia(40%) hue-rotate(-30deg) saturate(1.8); }
+.filter-css-soft-focus { filter: blur(1px) brightness(1.1) contrast(0.9); }
+.filter-css-punchy { filter: contrast(1.4) saturate(1.5); }
+.filter-css-muted { filter: saturate(0.7) contrast(0.9); }
+.filter-css-green-tint { filter: hue-rotate(90deg) saturate(0.5) brightness(1.1); }
+.filter-css-purple-haze { filter: hue-rotate(270deg) saturate(0.7) brightness(1.1); }
+.filter-css-orange-peel { filter: sepia(0.5) saturate(1.5) hue-rotate(20deg); }
+.filter-css-fuji { filter: contrast(1.1) saturate(1.2) sepia(0.1) hue-rotate(-5deg); }
+.filter-css-kodak { filter: sepia(0.2) saturate(1.3) contrast(1.1) brightness(1.05); }
+.filter-css-crosshatch { filter: contrast(1.3) brightness(1.1); /* Requires canvas for true crosshatch */ }
+.filter-css-sketch { filter: grayscale(1) contrast(5) invert(1); /* Basic sketch effect */ }
+.filter-css-cartoon { filter: contrast(1.5) saturate(2); /* More subtle, complex needs AI */ }
+.filter-css-sunlight { filter: brightness(1.3) contrast(1.1) saturate(1.2); }
+.filter-css-moonlight { filter: brightness(0.7) contrast(1.2) saturate(0.8) hue-rotate(180deg); }
+.filter-css-old-film { filter: sepia(0.8) saturate(0.8) contrast(1.1) brightness(0.9) grayscale(0.1); }
+.filter-css-pop-color { filter: saturate(2.5) contrast(1.3) brightness(1.1); }
+.filter-css-aqua { filter: hue-rotate(190deg) saturate(1.5) brightness(1.1); }
+.filter-css-chrome { filter: contrast(1.2) brightness(1.1) saturate(1.5); }
+.filter-css-fade-to-black { filter: brightness(0.5) saturate(0.2); }
+.filter-css-high-contrast-bw { filter: grayscale(1) contrast(2) brightness(0.8); }
 
-/* Custom Video Controls Styling */
+
+/* ==========================================================================
+   9. Custom Video Controls Styling (Gallery Page)
+      Styles for the custom play/pause, progress, volume, fullscreen buttons.
+   ========================================================================== */
+
 .video-controls-container {
     position: absolute;
-    bottom: 0; /* Position above bottom action buttons (share, download, delete) */
+    bottom: 0; /* Positioned at the bottom of the viewer content */
     left: 0;
     width: 100%;
-    padding: 10px 15px;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); /* Gradient background */
     color: var(--text-light);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-sm);
     z-index: 2002; /* Above viewer content, below close/nav arrows */
-    opacity: 1; /* Always visible for simplicity, could add hover */
-    transition: opacity 0.3s ease;
+    opacity: 1; /* Always visible for now, could add show/hide on interaction */
+    transition: opacity var(--transition-slow);
 }
 
 .video-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--spacing-sm);
     width: 100%;
 }
 
@@ -701,9 +985,10 @@ footer {
     color: var(--text-light);
     font-size: 1.3em;
     cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius-circle);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    outline: none;
 }
 .video-controls button:hover {
     background-color: rgba(255, 255, 255, 0.15);
@@ -711,42 +996,157 @@ footer {
 .video-controls button:active {
     transform: scale(0.95);
 }
+.video-controls button:focus-visible {
+    box-shadow: var(--shadow-focus);
+}
 
+/* Progress bar styles */
 .progress-bar-wrapper {
-    flex-grow: 1;
+    flex-grow: 1; /* Take remaining horizontal space */
     height: 6px;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3); /* Lighter track */
     border-radius: 3px;
     cursor: pointer;
     position: relative;
+    overflow: hidden; /* Ensure progress bar stays within bounds */
+    transition: height var(--transition-fast); /* For hover effect */
+}
+
+.progress-bar-wrapper:hover {
+    height: 8px; /* Slightly taller on hover for easier seeking */
 }
 
 .progress-bar {
     height: 100%;
-    width: 0%;
-    background-color: var(--accent-pink); /* Progress color */
+    width: 0%; /* Controlled by JS */
+    background-color: var(--accent-pink); /* Fill color */
     border-radius: 3px;
     transition: width 0.1s linear; /* Smooth progress update */
+    position: absolute; /* Ensures it's positioned correctly within wrapper */
+    top: 0;
+    left: 0;
 }
 
 #time-display {
-    font-size: 0.85em;
-    white-space: nowrap;
-    min-width: 90px; /* Ensure space for 00:00 / 00:00 */
+    font-size: var(--font-size-sm);
+    white-space: nowrap; /* Prevent time from wrapping */
+    min-width: 90px; /* Ensure space for "00:00 / 00:00" */
     text-align: right;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* Fullscreen video styling */
+/* Specific styling for video element when in fullscreen mode */
 .media-viewer-content.fullscreen video {
     width: 100%;
     height: 100%;
     object-fit: cover; /* Cover entire screen in fullscreen */
+    border-radius: 0; /* No rounded corners in fullscreen */
 }
 
-/* Hide controls container if not a video or viewer is not active */
+/* Ensure controls are hidden when not a video or viewer inactive (managed by JS) */
 .media-viewer-overlay:not(.active) .video-controls-container {
     display: none;
 }
+/* When viewer is active, JS will explicitly set display:flex for videos */
 .media-viewer-overlay.active .video-controls-container {
-    display: none; /* Hide by default, JS will show if video */
+    /* Initially hidden by CSS. JS will make it 'flex' if a video is playing. */
+    display: none; 
+}
+
+
+/* ==========================================================================
+   10. Responsive Design (Media Queries)
+       Adjustments for different screen sizes, though mobile-first already.
+   ========================================================================== */
+
+@media (max-width: 480px) {
+    /* Adjustments for smaller phone screens */
+    .auth-form {
+        padding: var(--spacing-lg);
+        gap: var(--spacing-sm);
+    }
+
+    .auth-form h2 {
+        font-size: var(--font-size-xl);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .auth-form input,
+    .auth-form button {
+        padding: var(--spacing-sm);
+        font-size: var(--font-size-md);
+        height: var(--button-height-md); /* Maintain consistent height */
+    }
+
+    .filter-controls {
+        padding: var(--spacing-xs);
+        gap: var(--spacing-xs);
+    }
+
+    .filter-button {
+        padding: 6px 10px;
+        font-size: 0.8em;
+    }
+
+    .camera-action-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1em;
+    }
+
+    #capture-button {
+        width: 65px;
+        height: 65px;
+        border-width: 4px;
+    }
+
+    .post-capture-controls button {
+        padding: var(--spacing-sm) var(--spacing-xs);
+        font-size: var(--font-size-md);
+    }
+
+    .gallery-grid {
+        gap: var(--spacing-sm);
+        grid-template-columns: repeat(auto-fill, minmax(calc( (100% / 2) - 8px ), 1fr)); /* 2 columns on very small screens */
+    }
+
+    .media-viewer-overlay .nav-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5em;
+        left: var(--spacing-sm);
+        right: var(--spacing-sm);
+    }
+
+    .media-viewer-overlay .viewer-bottom-controls button {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-height: 600px) and (orientation: portrait) {
+    /* Adjustments for shorter portrait phones */
+    .camera-container {
+        padding-top: calc(var(--header-height) + 10px);
+        padding-bottom: calc(var(--footer-height) + 10px);
+    }
+    .filter-controls {
+        top: calc(var(--header-height) + 45px); /* Push filters down a bit less */
+        padding: 8px;
+    }
+    #caption-input {
+        top: 15%; /* Move caption input higher */
+    }
+}
+
+@media (min-width: 451px) {
+    /* Styles for tablets/desktops (if viewing mobile-optimized app) */
+    body {
+        justify-content: center; /* Center container vertically on larger screens */
+    }
+    .container {
+        min-height: 80vh; /* Don't force full height on desktop, let it be contained */
+        height: auto; /* Allow height to shrink if content is short */
+        margin: var(--spacing-xl) auto; /* Add margin around the container */
+    }
 }
