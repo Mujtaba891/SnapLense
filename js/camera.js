@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRecording = false;
     let recordingTimeout = null;
     let currentFacingMode = 'user'; // 'user' for front, 'environment' for back
-    // Removed: let currentZoomValue = 1.0; // Current zoom level
+    // Removed: let currentZoomValue = 1.0; // Current zoom level, no longer needed
     let animationFrameId = null; // For the canvas drawing loop
     let frameCount = 0; // For animation-based filters
 
@@ -284,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tempCanvas.height = tempVideoElement.videoHeight;
                 const tempCtx = tempCanvas.getContext('2d');
                 
+                // Draw thumbnail without mirror (as media is already baked in and correctly oriented)
                 tempCtx.drawImage(tempVideoElement, 0, 0, tempCanvas.width, tempCanvas.height);
 
                 mediaToSave.thumbnail = tempCanvas.toDataURL('image/jpeg', 0.7);
@@ -326,11 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     });
 
-    // Removed: Zoom functionality
-    // zoomSlider.addEventListener('input', () => {
-    //     currentZoomValue = parseFloat(zoomSlider.value);
-    //     zoomLevelSpan.textContent = `${currentZoomValue.toFixed(1)}x`;
-    // });
+    // Removed: Zoom functionality (slider, event listener, etc.)
 
     // Initialize filter buttons (UNMODIFIED, except internal logic for CSS vs Canvas)
     const initializeFilterButtons = () => {

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const galleryGrid = document.getElementById('gallery-grid');
     const mediaViewerOverlay = document.getElementById('media-viewer-overlay');
-    const mediaViewerContent = document.getElementById('media-viewer-content');
+    const mediaViewerContent = document.getElementById('media-viewer-content'); // Added this ID to gallery.html for clarity
     const viewerImage = document.getElementById('viewer-image');
     const viewerVideo = document.getElementById('viewer-video');
     const viewerCaption = document.getElementById('viewer-caption');
@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper function to format time
     function formatTime(seconds) {
+        if (isNaN(seconds) || seconds < 0) return "0:00";
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
         return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
@@ -42,12 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Video Controls Logic ---
 
     function setupVideoControls() {
+        // Remove previous listeners first to avoid duplicates
+        removeVideoControlsListeners(); 
+
         playPauseButton.addEventListener('click', togglePlayPause);
         viewerVideo.addEventListener('play', updatePlayPauseButton);
         viewerVideo.addEventListener('pause', updatePlayPauseButton);
         viewerVideo.addEventListener('ended', resetVideoState);
         viewerVideo.addEventListener('timeupdate', updateProgressBar);
-        viewerVideo.addEventListener('loadedmetadata', updateProgressBar);
+        viewerVideo.addEventListener('loadedmetadata', updateProgressBar); // To update duration when video loads
+        viewerVideo.addEventListener('volumechange', updateVolumeButton);
 
         progressBarWrapper.addEventListener('click', seekVideo);
 
@@ -58,6 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange); // For Safari
         document.addEventListener('mozfullscreenchange', handleFullscreenChange);   // For Firefox
         document.addEventListener('MSFullscreenChange', handleFullscreenChange);    // For IE/Edge
+
+        // Initial state update
+        updatePlayPauseButton();
+        updateProgressBar();
+        updateVolumeButton();
     }
 
     function removeVideoControlsListeners() {
@@ -67,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         viewerVideo.removeEventListener('ended', resetVideoState);
         viewerVideo.removeEventListener('timeupdate', updateProgressBar);
         viewerVideo.removeEventListener('loadedmetadata', updateProgressBar);
+        viewerVideo.removeEventListener('volumechange', updateVolumeButton);
 
         progressBarWrapper.removeEventListener('click', seekVideo);
 
@@ -102,21 +113,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateProgressBar() {
-        const percentage = (viewerVideo.currentTime / viewerVideo.duration) * 100;
-        progressBar.style.width = `${percentage}%`;
-        timeDisplay.textContent = `${formatTime(viewerVideo.currentTime)} / ${formatTime(viewerVideo.duration)}`;
+        if (viewerVideo.duration) { // Check if duration is available
+            const percentage = (viewerVideo.currentTime / viewerVideo.duration) * 100;
+            progressBar.style.width = `${percentage}%`;
+            timeDisplay.textContent = `${formatTime(viewerVideo.currentTime)} / ${formatTime(viewerVideo.duration)}`;
+        } else {
+            progressBar.style.width = `0%`;
+            timeDisplay.textContent = `0:00 / 0:00`;
+        }
     }
 
     function seekVideo(e) {
         const rect = progressBarWrapper.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         const width = rect.width;
-        const seekTime = (clickX / width) * viewerVideo.duration;
-        viewerVideo.currentTime = seekTime;
+        if (viewerVideo.duration) { // Only seek if duration is known
+            const seekTime = (clickX / width) * viewerVideo.duration;
+            viewerVideo.currentTime = seekTime;
+        }
     }
 
     function toggleMute() {
         viewerVideo.muted = !viewerVideo.muted;
+    }
+
+    function updateVolumeButton() {
         if (viewerVideo.muted) {
             volumeButton.innerHTML = '<i class="fas fa-volume-mute"></i>';
         } else {
@@ -258,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Hide video controls by default, show if it's a video
         videoControlsContainer.style.display = 'none';
-        removeVideoControlsListeners(); // Remove old listeners before setting up new for next video
+        removeVideoControlsListeners(); // Clean up old listeners to prevent memory leaks/duplicates
 
         if (media.type === 'image') {
             viewerImage.src = media.data;
@@ -280,9 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show and setup video controls for video
             videoControlsContainer.style.display = 'flex';
             setupVideoControls(); // Add new listeners
-            updatePlayPauseButton(); // Initial state for play/pause button
-            updateProgressBar(); // Initial state for time and progress
-            toggleMute(); // Call once to set initial volume icon correctly
         }
 
         viewerCaption.textContent = media.caption || 'No caption.';
