@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SnapLens - Gallery</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="action-button" onclick="window.location.href='camera.html'"><i class="fas fa-arrow-left"></i> Back</button>
+            <h1>Gallery</h1>
+            <div></div> <!-- Placeholder for right-aligned items -->
+        </header>
+
+        <main>
+            <div id="gallery-grid" class="gallery-grid">
+                <!-- Media items will be loaded here -->
+            </div>
+
+            <!-- Media Viewer Overlay -->
+            <div id="media-viewer-overlay" class="media-viewer-overlay">
+                <div class="media-viewer-content">
+                    <img id="viewer-image" src="" alt="Viewed Media" style="display: none;">
+                    <video id="viewer-video" src="" controls style="display: none;"></video>
+                    <p class="caption" id="viewer-caption"></p>
+                </div>
+                
+                <button class="close-button" id="close-viewer-button"><i class="fas fa-times"></i></button>
+                
+                <button class="nav-arrow left" id="prev-media-button"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-arrow right" id="next-media-button"><i class="fas fa-chevron-right"></i></button>
+
+                <div class="viewer-bottom-controls">
+                    <button id="download-button"><i class="fas fa-download"></i> Download</button>
+                    <button id="share-button"><i class="fas fa-share-alt"></i> Share</button>
+                    <button id="delete-button"><i class="fas fa-trash-alt"></i> Delete</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <a href="camera.html" class="nav-button">
+                <i class="fas fa-camera"></i> Camera
+            </a>
+            <a href="gallery.html" class="nav-button">
+                <i class="fas fa-images"></i> Gallery
+            </a>
+        </footer>
+    </div>
+    <script src="js/db.js"></script>
+    <script src="js/filters.js"></script> <!-- IMPORTANT: Load filters.js before gallery.js -->
+    <script src="js/gallery.js"></script>
+</body>
+</html>

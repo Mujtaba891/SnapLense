@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SnapLens - Welcome</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#663399">
+    <!-- Replace with actual app icon, e.g., a modern camera/abstract icon -->
+    <link rel="icon" href="/images/icon.png"> 
+    <link rel="apple-touch-icon" href="/images/icon.png">
+</head>
+<body>
+    <div class="container">
+        <main>
+            <form id="auth-form" class="auth-form">
+                <h2>SnapLens</h2>
+                <input type="text" id="username" placeholder="Username" required autocomplete="username">
+                <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+                <button type="submit" id="auth-button">Login</button>
+                <p>Don't have an account? <a href="#" id="toggle-auth">Register here</a></p>
+                <p class="message-text" id="auth-message"></p>
+            </form>
+        </main>
+    </div>
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

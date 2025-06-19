@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SnapLens - Camera</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="action-button" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <h1>SnapLens</h1>
+            <button id="switch-camera-button" class="action-button camera-action-button">
+                <i class="fas fa-camera-rotate"></i>
+            </button>
+        </header>
+
+        <main class="camera-container">
+            <div id="screen-flash-overlay"></div> <!-- For simulated flashlight -->
+            
+            <!-- Hidden video to capture stream -->
+            <video id="camera-video-source" autoplay playsinline style="display:none;"></video>
+            
+            <!-- Visible canvas for display and processing -->
+            <canvas id="camera-canvas"></canvas>
+            
+            <!-- Photo preview (after capture) will be on an image element -->
+            <img id="photo-preview" src="" alt="Captured Photo">
+            
+            <input type="text" id="caption-input" placeholder="Add a caption..." maxlength="50">
+
+            <div class="filter-controls" id="filter-controls">
+                <!-- Filter buttons will be loaded here by JS -->
+            </div>
+
+            <div class="zoom-controls">
+                <input type="range" id="zoom-slider" min="1" max="5" step="0.1" value="1">
+                <span id="zoom-level">1.0x</span>
+            </div>
+
+            <div class="camera-controls-bottom">
+                <button id="flashlight-button" class="action-button camera-action-button">
+                    <i class="fas fa-bolt"></i>
+                </button>
+                <button id="capture-button"></button> <!-- Main capture/record button -->
+                <button id="gallery-button" class="action-button camera-action-button" onclick="window.location.href='gallery.html'">
+                    <i class="fas fa-images"></i>
+                </button>
+            </div>
+
+            <div class="post-capture-controls">
+                <button id="retake-button"><i class="fas fa-redo"></i> Retake</button>
+                <button id="save-gallery-button"><i class="fas fa-save"></i> Save to Gallery</button>
+            </div>
+        </main>
+    </div>
+    <script src="js/db.js"></script>
+    <script src="js/filters.js"></script> <!-- Load filters.js before camera.js -->
+    <script src="js/camera.js"></script>
+    <script>
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

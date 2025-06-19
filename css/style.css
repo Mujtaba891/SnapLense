@@ -1,0 +1,728 @@
+/* css/style.css */
+
+:root {
+    /* New Light/Vibrant Theme Colors */
+    --primary-blue: #663399; /* Deep Purple */
+    --accent-pink: #FF69B4;  /* Hot Pink */
+    --secondary-green: #90EE90; /* Light Green */
+    --tertiary-purple: #B19CD9; /* Lavender Purple */
+    --text-dark: #333;       /* Dark text for light backgrounds */
+    --text-light: #F8F8F8;   /* Light text for dark backgrounds */
+    --background-light: #FFFFFF; /* White background */
+    --background-mid: #F0F0F0;   /* Light gray background */
+    --background-dark: #E0E0E0;  /* Slightly darker gray for elements */
+    --border-radius: 12px;
+    --header-height: 55px;
+    --footer-height: 60px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* Control overall scrolling */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-mid);
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center container horizontally */
+    justify-content: flex-start; /* Push container to top */
+}
+
+/* Mobile-first approach: Centered container */
+.container {
+    max-width: 450px; /* Typical phone width */
+    width: 100%;
+    min-height: 100vh; /* Ensure container is full height on small screens */
+    background-color: var(--background-light);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden; /* Hide scrollbars, let main content handle */
+}
+
+/* Header */
+header {
+    background-color: var(--primary-blue);
+    color: var(--text-light);
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    height: var(--header-height);
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ensure header fills container width */
+}
+
+header h1 {
+    font-size: 1.6em;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Back/Action Buttons */
+.action-button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.1em;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: var(--border-radius);
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.action-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+.action-button i {
+    font-size: 1.2em; /* Font Awesome icon size */
+}
+
+/* Main Content Area */
+main {
+    flex-grow: 1; /* Take up remaining space */
+    overflow-y: auto; /* Enable scrolling for content if needed */
+    padding: 0; /* Remove padding here to allow camera to fill space */
+    display: flex;
+    flex-direction: column;
+    position: relative; /* For absolutely positioned elements within main */
+}
+
+/* Forms (Login/Register) */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 50px;
+    padding: 25px;
+    background-color: var(--background-mid);
+    border-radius: var(--border-radius);
+    max-width: 320px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form h2 {
+    text-align: center;
+    color: var(--primary-blue);
+    margin-bottom: 25px;
+    font-size: 2.2em;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+    padding: 14px;
+    border: 1px solid var(--background-dark);
+    border-radius: var(--border-radius);
+    background-color: var(--background-light);
+    color: var(--text-dark);
+    font-size: 1.05em;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.auth-form input::placeholder {
+    color: #888;
+}
+
+.auth-form button {
+    padding: 14px;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--accent-pink);
+    color: var(--text-light);
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form button:hover {
+    background-color: #FF8CBF;
+    transform: translateY(-1px);
+}
+.auth-form button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form p {
+    text-align: center;
+    font-size: 0.95em;
+    color: var(--text-dark);
+}
+
+.auth-form p a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+
+.auth-form p a:hover {
+    color: #805BB0;
+}
+
+.message-text {
+    color: #FF6B6B; /* Soft Red for errors */
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 500;
+}
+.message-text.success {
+    color: var(--secondary-green);
+}
+
+
+/* Camera Page */
+.camera-container {
+    position: absolute; /* Takes full space of main */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    z-index: 1; /* Below header/footer if they are not absolute */
+    padding-bottom: var(--footer-height); /* Space for bottom controls */
+    padding-top: var(--header-height); /* Space for top controls */
+}
+
+/* Video element hidden, used as source for canvas */
+#camera-video-source {
+    display: none;
+}
+
+/* Canvas for displaying filtered video/photo */
+#camera-canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Maintain aspect ratio, cover container */
+    /* REMOVED: transform: scaleX(-1); Mirroring handled by ctx.scale(-1,1) in JS */
+    transition: transform 0.1s ease-out; /* For zoom effect */
+    background-color: black; /* In case camera not ready */
+}
+
+/* Photo preview (after capture) will also be on an image element */
+#photo-preview {
+    display: none; /* Hidden by default */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* REMOVED: transform: scaleX(-1); Mirroring handled by canvas data */
+    background-color: black;
+}
+
+
+/* Camera Controls */
+.camera-controls-top,
+.camera-controls-bottom {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    z-index: 10;
+    background: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+}
+.camera-controls-top {
+    top: var(--header-height); /* Below main header */
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+}
+.camera-controls-bottom {
+    bottom: var(--footer-height); /* Above main footer */
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+}
+
+.camera-action-button {
+    background: rgba(0,0,0,0.4);
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    color: var(--text-light); /* Font Awesome icon color */
+    font-size: 1.2em;
+}
+.camera-action-button:hover {
+    background-color: rgba(0,0,0,0.6);
+}
+.camera-action-button:active {
+    transform: scale(0.95);
+}
+
+#capture-button {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    background-color: var(--text-light);
+    border: 5px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 0 15px rgba(255,255,255,0.4);
+}
+#capture-button:active {
+    transform: scale(0.9);
+}
+#capture-button.recording {
+    background-color: var(--accent-pink);
+    border-color: var(--primary-blue);
+    transform: scale(0.95);
+}
+
+.zoom-controls {
+    position: absolute;
+    width: 100%;
+    bottom: calc(var(--footer-height) + 85px); /* Above capture button */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    padding: 0 20px;
+}
+
+#zoom-slider {
+    width: 80%;
+    -webkit-appearance: none;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    outline: none;
+    opacity: 0.8;
+    transition: opacity .2s;
+    margin-bottom: 10px;
+}
+#zoom-slider:hover {
+    opacity: 1;
+}
+#zoom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-pink);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+#zoom-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-pink);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+#zoom-level {
+    color: var(--text-light);
+    font-size: 0.9em;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 3px 8px;
+    border-radius: 5px;
+}
+
+.filter-controls {
+    position: absolute;
+    top: calc(var(--header-height) + 55px); /* Below top camera controls */
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    z-index: 10;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.filter-button {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-light);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.filter-button.active {
+    background-color: var(--primary-blue);
+    border-color: var(--accent-pink);
+    font-weight: bold;
+    box-shadow: 0 0 8px var(--accent-pink);
+}
+
+.filter-button:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+#caption-input {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--text-light);
+    font-size: 1.2em;
+    text-align: center;
+    z-index: 6;
+    backdrop-filter: blur(5px);
+}
+
+.post-capture-controls {
+    display: none; /* Hidden by default */
+    position: absolute;
+    bottom: var(--footer-height); /* Above actual footer */
+    width: 100%;
+    justify-content: space-around;
+    gap: 15px;
+    padding: 15px 20px;
+    z-index: 10;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+}
+
+.post-capture-controls button {
+    flex: 1;
+    padding: 14px 15px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1.05em;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--primary-blue);
+    color: var(--text-light);
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.post-capture-controls button:hover {
+    background-color: #805BB0;
+}
+
+/* Screen flash effect for simulated flashlight */
+#screen-flash-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: 0;
+    z-index: 100;
+    pointer-events: none; /* Allow clicks to pass through */
+    transition: opacity 0.1s ease-out;
+}
+
+
+/* Gallery Page */
+/* Adjust grid for 9:16 aspect ratio thumbnails */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc( (100% / 3) - 10px ), 1fr)); /* Approximately 3 columns */
+    gap: 10px;
+    padding: 15px;
+    width: 100%;
+}
+
+.gallery-item {
+    position: relative;
+    width: 100%;
+    padding-bottom: calc(100% / 9 * 16); /* width:height = 9:16 */
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    background-color: var(--background-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-item img,
+.gallery-item video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none; /* Prevent media controls interference */
+    /* Gallery items should NOT be mirrored here, as data is already correctly oriented */
+}
+
+.gallery-item .delete-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2; /* Above image/video */
+    opacity: 0.8;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+}
+.gallery-item .delete-button:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.gallery-item .video-indicator {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 3px 6px;
+    border-radius: 5px;
+    font-size: 0.7em;
+    z-index: 2;
+}
+
+/* Media Viewer Overlay */
+.media-viewer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    display: none; /* Hidden by default */
+}
+
+.media-viewer-content {
+    position: relative;
+    width: 90%; /* Max width for content */
+    height: 85%; /* Max height for content */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.media-viewer-content img,
+.media-viewer-content video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Fit media within the viewer frame */
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    /* Gallery items should NOT be mirrored here, as data is already correctly oriented */
+}
+
+
+.media-viewer-overlay .caption {
+    color: var(--text-light);
+    margin-top: 15px;
+    font-size: 1.2em;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.media-viewer-overlay .viewer-top-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+}
+
+.media-viewer-overlay .close-button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--text-light);
+    font-size: 1.8em;
+    cursor: pointer;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+.media-viewer-overlay .close-button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+
+.media-viewer-overlay .viewer-bottom-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+}
+
+.media-viewer-overlay .viewer-bottom-controls button {
+    background-color: var(--primary-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 10px 15px;
+    font-size: 1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.media-viewer-overlay .viewer-bottom-controls button:hover {
+    background-color: #805BB0;
+    transform: translateY(-1px);
+}
+.media-viewer-overlay .viewer-bottom-controls button:active {
+    transform: translateY(0);
+}
+
+
+.media-viewer-overlay .nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--text-light);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    z-index: 2001; /* Above content */
+}
+.media-viewer-overlay .nav-arrow:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+.media-viewer-overlay .nav-arrow.left {
+    left: 10px;
+}
+.media-viewer-overlay .nav-arrow.right {
+    right: 10px;
+}
+
+
+/* Footer Navigation */
+footer {
+    background-color: var(--primary-blue);
+    color: var(--text-light);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    height: var(--footer-height);
+    z-index: 1000;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-top: auto; /* Push to bottom if content is short */
+}
+
+.nav-button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.85em;
+    gap: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.nav-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-button i {
+    font-size: 1.5em; /* Font Awesome icon size */
+}
+
+/* Filter Classes (CSS-based - simpler effects) */
+.filter-css-none { filter: none; }
+.filter-css-grayscale { filter: grayscale(100%); }
+.filter-css-sepia { filter: sepia(100%); }
+.filter-css-invert { filter: invert(100%); }
+.filter-css-contrast { filter: contrast(200%); }
+.filter-css-saturate { filter: saturate(200%); }
+.filter-css-hue-rotate { filter: hue-rotate(90deg); }
+.filter-css-blur { filter: blur(3px); }
+.filter-css-brightness { filter: brightness(150%); }
+.filter-css-dark { filter: brightness(50%); }
+.filter-css-warm { filter: sepia(30%) saturate(150%) hue-rotate(-15deg); }
+.filter-css-cold { filter: sepia(30%) saturate(150%) hue-rotate(15deg); }
+.filter-css-vintage { filter: sepia(80%) saturate(180%) contrast(110%) brightness(90%); }
+.filter-css-noir { filter: grayscale(100%) contrast(150%) brightness(80%); }
+.filter-css-lomo { filter: contrast(150%) brightness(90%) sepia(20%) saturate(180%); }
+.filter-css-dreamy { filter: saturate(130%) contrast(110%) brightness(120%) blur(0.5px) sepia(10%); }
+.filter-css-faded { filter: grayscale(50%) contrast(80%) brightness(120%) sepia(20%); }
+.filter-css-gotham { filter: contrast(120%) brightness(120%) saturate(80%) grayscale(10%); }
+.filter-css-cross-process { filter: sepia(30%) contrast(1.2) brightness(1.2) saturate(1.3) hue-rotate(20deg); }
+.filter-css-bleach-bypass { filter: contrast(1.5) brightness(1.2) saturate(0.5) grayscale(0.2); }
+.filter-css-pastel { filter: brightness(1.1) saturate(0.8) hue-rotate(-5deg) contrast(1.1); }
+.filter-css-cyberpunk { filter: saturate(2) hue-rotate(250deg) brightness(1.2) contrast(1.5); }
+.filter-css-infra-red { filter: hue-rotate(180deg) sepia(50%) contrast(1.5) saturate(2); }
+.filter-css-pop-art { filter: contrast(3) saturate(3) hue-rotate(20deg) brightness(1.5); }
+.filter-css-neon { filter: saturate(2) hue-rotate(100deg) brightness(1.5) contrast(1.3); }
+.filter-css-glow { filter: brightness(1.3) saturate(1.5) contrast(1.1); }
+.filter-css-duotone { filter: grayscale(100%) contrast(1.5) brightness(0.8) sepia(100%) hue-rotate(200deg); }
